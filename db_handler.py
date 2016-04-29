@@ -120,5 +120,17 @@ class DatabaseHandler:
 
             return words_with_meaning
 
+    @classmethod
+    def edit_entry(cls, entry, field, new_value, database):
+        tables_found = cls.locate_table_for_entry(entry, database)
+        cls.check_single_table_found(tables_found)
+
+        con = sqlite3.connect(database)
+
+        with con:
+            c = con.cursor()
+            c.execute("UPDATE {tb} SET {f} = '{n_v}' WHERE Entry = '{en}'".\
+                      format(tb=tables_found[0], f=field, n_v=new_value,
+                             en=entry))
 
 

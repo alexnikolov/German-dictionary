@@ -35,3 +35,5 @@ print(d.exists_entry("Sandwich"))
 s = d.extract_entries_with_meaning("lovely")
 for word in s:
   print(word)
+
+d.edit_entry("A", 'Gender', 'XYZ')

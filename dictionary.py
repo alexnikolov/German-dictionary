@@ -35,3 +35,6 @@ class Dictionary:
                 found_entries.append(class_name(entry_data))
 
         return found_entries
+
+    def edit_entry(self, entry, field, new_value):
+        DatabaseHandler.edit_entry(entry, field, new_value, self.database)
