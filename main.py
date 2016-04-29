@@ -28,3 +28,10 @@ v = verb.Verb({'Entry': 'A', 'Used_case': 'B', 'Preposition': 'C', 'Separable': 
 d = dictionary.Dictionary('words.db')
 x = d.extract_entry('Hund')
 print(x)
+
+print(d.exists_entry("Sandwich"))
+#print(d.delete_entry("A"))
+
+s = d.extract_entries_with_meaning("lovely")
+for word in s:
+  print(word)

@@ -1,7 +1,5 @@
 import sqlite3
-import noun
-import verb
-import adjective
+import sys
 
 
 class DatabaseError(Exception):
@@ -51,13 +49,16 @@ class DatabaseHandler:
     @classmethod
     def extract_entry(cls, word, database):
         tables_found = cls.locate_table_for_entry(word, database)
+        cls.check_single_table_found(tables_found)
 
+        return cls.extract_from_concrete_table(word, database, tables_found[0])
+
+    @classmethod
+    def check_single_table_found(cls, tables_found):
         if len(tables_found) == 0:
             raise DatabaseError('Entry not found')
         elif len(tables_found) >= 2:
             raise DatabaseError('Multiple entries found')
-
-        return cls.extract_from_concrete_table(word, database, tables_found[0])
 
     @classmethod
     def locate_table_for_entry(cls, word, database):
@@ -80,10 +81,44 @@ class DatabaseHandler:
                       format(tb=table, w=word))
             found_entry = c.fetchall()[0]
 
-            print(found_entry['Entry'])
-            if table == 'Nouns':
-                return noun.Noun(found_entry)
-            elif table == 'Verbs':
-                return verb.Verb(found_entry)
-            elif table == 'Adjectives':
-                return adjective.Adjective(found_entry)
+            return (found_entry, table)
+
+    @classmethod
+    def exists_entry(cls, word, database):
+        return len(cls.locate_table_for_entry(word, database)) > 0
+
+    @classmethod
+    def delete_entry(cls, word, database):
+        tables_found = cls.locate_table_for_entry(word, database)
+        cls.check_single_table_found(tables_found)
+
+        con = sqlite3.connect(database)
+
+        with con:
+            c = con.cursor()
+            c.execute("DELETE FROM {tb} WHERE Entry = '{w}'".\
+                      format(tb=tables_found[0], w=word))
+
+    @classmethod
+    def extract_with_meaning(cls, meaning, database):
+        con = sqlite3.connect(database)
+
+        with con:
+            con.row_factory = sqlite3.Row
+            c = con.cursor()
+            words_with_meaning = []
+
+            for table in ('Nouns', 'Verbs', 'Adjectives'):
+                c.execute(("SELECT * FROM {tb} WHERE Meaning LIKE '% {m} %'"
+                           " OR Meaning LIKE '% {m},%' OR Meaning LIKE '%{m}'"
+                           " OR Meaning LIKE '%{m},%'".\
+                           format(tb=table, m=meaning)))
+                from_one_table = c.fetchall()
+                from_one_table = zip(from_one_table,
+                                     [table[:-1]] * len(from_one_table))
+                words_with_meaning.append(from_one_table)
+
+            return words_with_meaning
+
+
+
