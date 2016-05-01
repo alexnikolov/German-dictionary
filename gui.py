@@ -19,24 +19,33 @@ class DictionaryGUI(tk.Frame):
         upper_frame = tk.Frame(self)
         upper_frame.pack(fill=tk.X)
 
-        extract_entry_button = tk.Button(upper_frame, text="Extract entry",
+        extract_entry_button = tk.Button(upper_frame, text="View word",
             command=self.extract_entry_click)
         extract_entry_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         add_word_button = tk.Button(upper_frame, text="Add word",
             command=self.add_word_click)
-        add_word_button.pack(side=tk.LEFT)
+        add_word_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        delete_entry_button = tk.Button(upper_frame, text="Delete word",
+            command=self.delete_entry_click)
+        delete_entry_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        extract_with_meaning_button = tk.Button(upper_frame,
+            text="View words with meaning",
+            command=self.extract_with_meaning_click)
+        extract_with_meaning_button.pack(side=tk.LEFT, padx=10, pady=10)
 
     def extract_entry_click(self):
         child = tk.Toplevel(self)
-        child.wm_title("Extract entry")
+        child.wm_title("View word")
         child.geometry("400x300+500+500")
         child.resizable(0, 0)
 
         frame = tk.Frame(child)
         frame.pack(fill=tk.X)
 
-        label = tk.Label(frame, text="Enter entry to extract:")
+        label = tk.Label(frame, text="Enter word to extract:")
         label.pack(side="left", fill="both", padx=10)
 
         self.text_box = tk.Entry(frame)
@@ -141,8 +150,88 @@ class DictionaryGUI(tk.Frame):
                 "The word {} has been successfully added to the database.".\
                 format(word_hash["Entry"]))
 
+    def delete_entry_click(self):
+        child = tk.Toplevel(self)
+        child.wm_title("Delete word")
+        child.geometry("450x200+500+500")
+        child.resizable(0, 0)
 
+        frame = tk.Frame(child)
+        frame.pack(fill=tk.X)
 
+        label = tk.Label(frame, text="Enter word to delete:", padx=10, 
+                         pady=10)
+        label.pack(side="left")
+
+        self.entry_content = tk.StringVar()
+        self.delete_entry_field = tk.Entry(frame, 
+            textvariable=self.entry_content)
+        self.delete_entry_field.pack(side="left")
+
+        go_button = tk.Button(frame, text="Go",
+                              command=self.delete_entry_go_click)
+        go_button.pack(side="left")
+
+        child.mainloop()
+
+    def delete_entry_go_click(self):
+        word_to_delete = self.delete_entry_field.get()
+
+        if not self.dictionary.exists_entry(word_to_delete):
+            mbox.showerror("Word not found", 
+                "The word {} has not been found.".format(word_to_delete))
+        else:
+            self.dictionary.delete_entry(word_to_delete)
+            mbox.showinfo("Word successfully deleted", 
+                ("The word {} has been successfully deleted"
+                 " from the database.".\
+                format(word_to_delete)))
+
+        self.entry_content.set("")
+
+    def extract_with_meaning_click(self):
+        child = tk.Toplevel(self)
+        child.wm_title("Delete word")
+        child.geometry("450x340+500+500")
+        child.resizable(0, 0)
+
+        frame = tk.Frame(child)
+        frame.pack(fill=tk.X)
+
+        label = tk.Label(frame, text="Enter meaning:", padx=10, 
+                         pady=10)
+        label.pack(side="left")
+
+        self.entry_content = tk.StringVar()
+        self.delete_entry_field = tk.Entry(frame, 
+            textvariable=self.entry_content)
+        self.delete_entry_field.pack(side="left")
+
+        go_button = tk.Button(frame, text="Go",
+                              command=self.extract_with_meaning_go_click)
+        go_button.pack(side="left")
+
+        result_frame = tk.Frame(child)
+        result_frame.pack(fill=tk.X)
+
+        self.result_content = tk.StringVar()
+        result_label = tk.Label(result_frame, justify="left",
+            textvariable=self.result_content)
+        result_label.pack(side="left")
+
+        child.mainloop()
+
+    def extract_with_meaning_go_click(self):
+        meaning = self.delete_entry_field.get()
+
+        found_words = self.dictionary.extract_entries_with_meaning(meaning)
+        if len(found_words) == 0:
+            mbox.showerror("No words found", 
+                "No words containing the meaning '{}' have been found.".\
+                format(meaning))
+            self.result_content.set("")
+        else:
+            self.result_content.set("\n\n".join(map(str, found_words)))
 
     def centerWindow(self):
         w = 800
