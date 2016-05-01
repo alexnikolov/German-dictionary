@@ -6,6 +6,13 @@ class DatabaseError(Exception):
 
 class DatabaseHandler:
     @classmethod
+    def dict_factory(cls, cursor, row):
+        dictionary = {}
+        for index, column in enumerate(cursor.description):
+            dictionary[column[0]] = row[index]
+        return dictionary
+
+    @classmethod
     def add_noun(cls, noun, database):
         con = sqlite3.connect(database)
 
@@ -14,9 +21,12 @@ class DatabaseHandler:
 
             c.execute(("INSERT INTO Nouns VALUES('{en}', '{gnd}', '{pl}',"
                        "'{gnt}', '{m}', '{ex}')".\
-                       format(en=noun.entry, gnd=noun.gender, pl=noun.plural,
-                              gnt=noun.genetive, m=noun.meaning, 
-                              ex=noun.examples)))
+                       format(en=noun.word_hash['Entry'],
+                              gnd=noun.word_hash['Gender'],
+                              pl=noun.word_hash['Plural'],
+                              gnt=noun.word_hash['Genetive'],
+                              m=noun.word_hash['Meaning'], 
+                              ex=noun.word_hash['Examples'])))
 
     @classmethod
     def add_verb(cls, verb, database):
@@ -27,10 +37,14 @@ class DatabaseHandler:
 
             c.execute(("INSERT INTO Verbs VALUES('{en}', '{cs}', '{prep}',"
                        "'{sep}', '{frm}', '{tran}', '{m}', '{ex}')".\
-                       format(en=verb.entry, cs=verb.case, 
-                              prep=verb.preposition, sep=verb.separable,
-                              frm=verb.forms, tran=verb.transitive,
-                              m=verb.meaning, ex=verb.examples)))
+                       format(en=verb.word_hash['Entry'],
+                              cs=verb.word_hash['Case'], 
+                              prep=verb.word_hash['Preposition'],
+                              sep=verb.word_hash['Separable'],
+                              frm=verb.word_hash['Forms'],
+                              tran=verb.word_hash['Transitive'],
+                              m=verb.word_hash['Meaning'],
+                              ex=verb.word_hash['Examples'])))
 
     @classmethod
     def add_adjective(cls, adj, database):
@@ -41,9 +55,11 @@ class DatabaseHandler:
 
             c.execute(("INSERT INTO Adjective VALUES('{en}', '{cmp}',"
                        "'{sup}', '{m}', '{ex}')".\
-                       format(en=adj.entry, cmp=adj.comparative,
-                              sup=adj.superlative, m=verb.meaning,
-                              ex=verb.examples)))
+                       format(en=adj.word_hash['Entry'],
+                              cmp=adj.word_hash['Comparative'],
+                              sup=adj.word_hash['Superlative'],
+                              m=verb.word_hash['Meaning'],
+                              ex=verb.word_hash['Examples'])))
 
     @classmethod
     def extract_entry(cls, word, database):
@@ -74,7 +90,7 @@ class DatabaseHandler:
         con = sqlite3.connect(database)
 
         with con:
-            con.row_factory = sqlite3.Row
+            con.row_factory = cls.dict_factory
             c = con.cursor()
             c.execute("SELECT * FROM {tb} WHERE Entry = '{w}'".\
                       format(tb=table, w=word))
@@ -103,7 +119,7 @@ class DatabaseHandler:
         con = sqlite3.connect(database)
 
         with con:
-            con.row_factory = sqlite3.Row
+            con.row_factory = cls.dict_factory
             c = con.cursor()
             words_with_meaning = []
 

@@ -36,6 +36,10 @@ class DictionaryGUI(tk.Frame):
             command=self.extract_with_meaning_click)
         extract_with_meaning_button.pack(side=tk.LEFT, padx=10, pady=10)
 
+        edit_entry_button = tk.Button(upper_frame, text="Edit entry",
+            command=self.edit_entry_click)
+        edit_entry_button.pack(side=tk.LEFT, padx=10, pady=10)
+
     def extract_entry_click(self):
         child = tk.Toplevel(self)
         child.wm_title("View word")
@@ -232,6 +236,77 @@ class DictionaryGUI(tk.Frame):
             self.result_content.set("")
         else:
             self.result_content.set("\n\n".join(map(str, found_words)))
+
+    def edit_entry_click(self):
+        self.child = tk.Toplevel(self)
+        self.child.wm_title("Delete word")
+        self.child.geometry("450x340+500+500")
+        self.child.resizable(0, 0)
+
+        label = tk.Label(self.child, text="Enter word to edit:", padx=10,
+                         pady=10)
+        label.grid(row=0, column=0, sticky=tk.W)
+
+        self.entry_content = tk.StringVar()
+        self.edit_word_field = tk.Entry(self.child, 
+            textvariable=self.entry_content)
+        self.edit_word_field.grid(row=0, column=1, sticky=tk.W)
+
+        go_button = tk.Button(self.child, text="Go",
+                              command=self.edit_entry_go_click)
+        go_button.grid(row=0, column=2, sticky=tk.W)
+
+    def edit_entry_go_click(self):
+        desired_word = self.edit_word_field.get()
+
+        if not self.dictionary.exists_entry(desired_word):
+            mbox.showerror("No word found", 
+                "The word '{}' has not been found.".format(desired_word))
+            self.result_content.set("")
+        else:
+            self.found_word = self.dictionary.extract_entry(desired_word)
+            self.fields = self.found_word.__class__.fields()
+
+            tk.Label(self.child, text="Choose field to edit:", padx=10,
+                pady=10).grid(row=1, column=0, sticky=tk.N+tk.W)
+
+            self.fields_to_edit = tk.Listbox(self.child, height=len(self.fields))
+            for field in self.fields:
+                self.fields_to_edit.insert(tk.END, field)
+            self.fields_to_edit.grid(row=1, column=1, sticky=tk.W)
+
+            edit_button = tk.Button(self.child, text="Edit",
+                command=self.edit_entry_edit_click)
+            edit_button.grid(row=1, column=2, sticky=tk.W)
+
+    def edit_entry_edit_click(self):
+        index = self.fields_to_edit.curselection()[0]
+        self.selected_field = self.fields_to_edit.get(index)
+
+        original_field_data = self.found_word.word_hash[self.selected_field]
+
+        tk.Label(self.child, text="Edit chosen field:", padx=10, pady=10).\
+            grid(row=1 + len(self.fields), column=0,sticky=tk.W)
+
+        self.new_field_data = tk.Entry(self.child, 
+            textvariable=original_field_data)
+        self.new_field_data.grid(row=1 + len(self.fields), column=1,
+            sticky=tk.W)
+
+        save_changes_button = tk.Button(self.child, text="Save changes",
+            command=self.edit_entry_save_click)
+        save_changes_button.grid(row=1 + len(self.fields), column=2,
+            sticky=tk.W)
+
+    def edit_entry_save_click(self):
+        new_field_data_content = self.new_field_data.get()
+
+        self.dictionary.edit_entry(self.found_word.word_hash['Entry'],
+            self.selected_field, new_field_data_content)
+
+        mbox.showinfo("Entry successfully edited",
+            "Entry {} has been successfully edited".\
+            format(self.found_word.word_hash['Entry']))
 
     def centerWindow(self):
         w = 800
