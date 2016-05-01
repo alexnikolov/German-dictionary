@@ -19,5 +19,6 @@ class Adjective(word.Word):
                                       self.superlative, self.meaning,
                                       self.examples))
 
-    def fields(self):
+    @classmethod
+    def fields(cls):
         return ('Entry', 'Comparative', 'Superlative', 'Meaning', 'Examples')

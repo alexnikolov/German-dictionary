@@ -22,6 +22,7 @@ class Verb(word.Word):
                        self.separable, self.forms, self.transitive,
                        self.meaning, self.examples))
 
-    def fields(self):
+    @classmethod
+    def fields(cls):
         return ('Entry', 'Case', 'Preposition', 'Separable', 'Forms',
                 'Transitive', 'Meaning', 'Examples')

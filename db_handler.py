@@ -1,5 +1,4 @@
 import sqlite3
-import sys
 
 
 class DatabaseError(Exception):

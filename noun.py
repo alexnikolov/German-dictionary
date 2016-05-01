@@ -20,6 +20,7 @@ class Noun(word.Word):
                                         self.genetive, self.meaning,
                                         self.examples))
 
-    def fields(self):
+    @classmethod
+    def fields(cls):
         return ('Entry', 'Gender', 'Plural', 'Genetive', 'Meaning',
                 'Examples')
