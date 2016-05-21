@@ -2,6 +2,7 @@ import sqlite3
 import noun
 import verb
 import dictionary
+import quiz
 
 conn = sqlite3.connect('words.db')
 c = conn.cursor()
@@ -25,15 +26,18 @@ v = verb.Verb({'Entry': 'A', 'Used_case': 'B', 'Preposition': 'C', 'Separable': 
 #n.add_entry('words.db')
 #v.add_entry('words.db')
 
-d = dictionary.Dictionary('words.db')
-x = d.extract_entry('Hund')
-print(x)
+#d = dictionary.Dictionary('words.db')
+#x = d.extract_entry('Hund')
+#print(x)
 
-print(d.exists_entry("Sandwich"))
+#print(d.exists_entry("Sandwich"))
 #print(d.delete_entry("A"))
 
-s = d.extract_entries_with_meaning("lovely")
-for word in s:
-  print(word)
+#s = d.extract_entries_with_meaning("lovely")
+#for word in s:
+  #print(word)
 
-d.edit_entry("A", 'Gender', 'XYZ')
+#d.edit_entry("A", 'Gender', 'XYZ')
+
+q = quiz.Quiz('wordzzz.db', ['Adjectives'], ['Meaning', 'Comparative'])
+print(q.guess(['great', 'abc']), q.score)

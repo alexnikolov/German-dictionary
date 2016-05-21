@@ -2,12 +2,14 @@ import tkinter as tk
 import tkinter.messagebox as mbox
 from dictionary import *
 from db_handler import DatabaseError
+from quiz import Quiz
 import sys
 
 
 class DictionaryGUI(tk.Frame):
     def __init__(self, parent, database):
         self.dictionary = Dictionary(database)
+        self.database = database
         tk.Frame.__init__(self, parent, background="white")
         self.parent = parent
         self.initUI()
@@ -39,6 +41,13 @@ class DictionaryGUI(tk.Frame):
         edit_entry_button = tk.Button(upper_frame, text="Edit entry",
             command=self.edit_entry_click)
         edit_entry_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        lower_frame = tk.Frame(self)
+        lower_frame.pack(fill=tk.X)
+
+        quiz_meaning_button = tk.Button(lower_frame, text="Meaning quiz",
+            command=self.quiz_meaning_click)
+        quiz_meaning_button.pack(side=tk.LEFT, padx=10, pady=10)
 
     def extract_entry_click(self):
         child = tk.Toplevel(self)
@@ -307,6 +316,105 @@ class DictionaryGUI(tk.Frame):
         mbox.showinfo("Entry successfully edited",
             "Entry {} has been successfully edited".\
             format(self.found_word.word_hash['Entry']))
+
+    def quiz_meaning_click(self):
+        self.child = tk.Toplevel(self)
+        self.child.wm_title("Meaning quiz")
+        self.child.geometry("450x340+500+500")
+        self.child.resizable(0, 0)
+
+        self.parts_of_speech = ['Nouns', 'Adjectives', 'Verbs']
+        self.fields = ['Meaning']
+        self.started = False
+
+        top_frame = tk.Frame(self.child)
+        top_frame.pack(fill=tk.X)
+
+        start_button = tk.Button(top_frame, text="Start", width=15,
+            command=self.start_button_click)
+        start_button.pack(anchor="center")
+
+        finish_button = tk.Button(top_frame, text="Finish",
+            command=self.finish_button_click, width=15)
+        finish_button.pack(side="top", anchor="center")
+
+    def start_button_click(self):
+        if not self.started:
+            self.started = True
+
+            self.quiz = Quiz(self.database, self.parts_of_speech, self.fields)
+
+            self.score_frame = tk.Frame(self.child)
+            self.score_frame.pack(fill=tk.X)
+
+            self.score = tk.StringVar()
+            self.score.set('Score: {}'.format(self.quiz.score))
+            self.score_info = tk.Label(self.score_frame, textvariable=self.score)
+            self.score_info.pack(side="left")
+
+            self.word_frame = tk.Frame(self.child)
+            self.word_frame.pack(fill=tk.X)
+
+            self.current_word = tk.StringVar()
+            self.current_word.set('Current word: {}'.\
+                format(self.quiz.current_word.word_hash['Entry']))
+            self.word_label = tk.Label(self.word_frame,
+                textvariable=self.current_word)
+            self.word_label.pack(side="left")
+
+            self.field_entries = []
+            self.field_frames = []
+            for field in self.fields:
+                new_field_frame = tk.Frame(self.child)
+                new_field_frame.pack(fill=tk.X)
+                self.field_frames.append(new_field_frame)
+
+                description = tk.Label(new_field_frame, text='{}: '.format(field))
+                description.pack(side="left")
+
+                new_entry = tk.Entry(new_field_frame)
+                new_entry.pack(side="left")
+
+                self.field_entries.append(new_entry)
+
+            self.go_frame = tk.Frame(self.child)
+            self.go_frame.pack(fill=tk.X)
+
+            self.check_button = tk.Button(self.go_frame, text='Check', width=15,
+                command=self.check_button_click)
+            self.check_button.pack(anchor="center")
+
+    def finish_button_click(self):
+        mbox.showinfo("Quiz finished", "Quiz finished, your score is {}".\
+            format("%.2f" %  (self.quiz.score * 100)))
+        self.started = False
+
+
+        self.score_frame.pack_forget()
+        self.word_frame.pack_forget()
+        for field_frame in self.field_frames:
+            field_frame.pack_forget()
+        self.go_frame.pack_forget()
+
+    def check_button_click(self):
+        suggestions = []
+        for index, field in enumerate(self.fields):
+            suggestions.append(self.field_entries[index].get())
+
+        print(suggestions)
+        guess_results = self.quiz.guess(suggestions)
+        print(guess_results)
+        answer_statement = self.quiz.answer_statements(guess_results)
+
+        mbox.showinfo("", "{}".format(answer_statement))
+        self.update_quiz_fields()
+
+    def update_quiz_fields(self):
+        self.score.set('Score: {}%'.format("%.2f" %  (self.quiz.score * 100)))
+        self.current_word.set('Current word: {}'.\
+            format(self.quiz.current_word.word_hash['Entry']))
+        for field_entry in self.field_entries:
+            field_entry.delete(0, 'end')
 
     def centerWindow(self):
         w = 800

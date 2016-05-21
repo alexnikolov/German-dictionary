@@ -148,4 +148,18 @@ class DatabaseHandler:
                       format(tb=tables_found[0], f=field, n_v=new_value,
                              en=entry))
 
+    @classmethod
+    def extract_parts_of_speech(cls, parts_of_speech, database):
+        con = sqlite3.connect(database)
+
+        with con:
+            con.row_factory = cls.dict_factory
+            c = con.cursor()
+            extracted_words = []
+
+            for part_of_speech in parts_of_speech:
+                c.execute("SELECT * FROM {pos}".format(pos=part_of_speech))
+                extracted_words += c.fetchall()
+
+            return extracted_words
 
