@@ -7,12 +7,6 @@ class Verb(word.Word):
     def __init__(self, db_hash):
         super(Verb, self).__init__(db_hash)
 
-        #self.forms = db_hash['Forms']
-        #self.transitive = db_hash['Transitive']
-        #self.case = db_hash['Used_case']
-        #self.preposition = db_hash['Preposition']
-        #self.separable = db_hash['Separable']
-
     def add_entry(self, database):
         db_handler.DatabaseHandler.add_verb(self, database)
 

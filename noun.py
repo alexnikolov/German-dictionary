@@ -7,10 +7,6 @@ class Noun(word.Word):
     def __init__(self, db_hash):
         super(Noun, self).__init__(db_hash)
 
-        #self.gender = db_hash['Gender']
-        #self.plural = db_hash['Plural']
-        #self.genetive = db_hash['Genetive']
-
     def add_entry(self, database):
         db_handler.DatabaseHandler.add_noun(self, database)
     

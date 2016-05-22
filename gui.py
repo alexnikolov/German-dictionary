@@ -34,7 +34,8 @@ class DictionaryGUI(tk.Frame):
     def create_grid_button(self, master, text, command, row, column,
                            sticky=tk.W+tk.E+tk.S+tk.N):
         new_button = tk.Button(master, text=text, command=command)
-        new_button.grid(row=row, column=column, sticky=sticky)
+        new_button.grid(row=row, column=column, sticky=sticky, padx=10,
+                        pady=10)
 
         return new_button
 
@@ -101,34 +102,56 @@ class DictionaryGUI(tk.Frame):
     def initUI(self):
         self.parent.title("German Dictionary")
         self.pack(fill=tk.BOTH, expand=True)
-
+        '''
         upper_frame = self.create_frame(self)
 
-        extract_entry_button = self.create_pack_button(upper_frame,
-            "View word", self.extract_entry_click)
+        self.create_pack_button(upper_frame, "View word",
+                                self.extract_entry_click)
 
-        add_word_button = self.create_pack_button(upper_frame,
-            "Add word", self.add_word_click)
+        self.create_pack_button(upper_frame, "Add word", self.add_word_click)
 
-        delete_entry_button = self.create_pack_button(upper_frame,
-            "Delete word", self.delete_entry_click)
+        self.create_pack_button(upper_frame, "Delete word",
+                                self.delete_entry_click)
 
-        extract_with_meaning_button = self.create_pack_button(upper_frame,
-            "View words with meaning", self.extract_with_meaning_click)
+        self.create_pack_button(upper_frame, "View words with meaning",
+                                self.extract_with_meaning_click)
 
-        edit_entry_button = self.create_pack_button(upper_frame,
-            "Edit entry", self.edit_entry_click)
+        self.create_pack_button(upper_frame, "Edit entry",
+                                self.edit_entry_click)
 
         lower_frame = self.create_frame(self)
 
-        quiz_meaning_button = self.create_pack_button(lower_frame,
-            "Meaning quiz", self.quiz_meaning_click)
+        self.create_pack_button(lower_frame, "Meaning quiz",
+                                self.quiz_meaning_click, 0, 1)
 
-        quiz_nouns_button = self.create_pack_button(lower_frame,
-            "Nouns quiz", self.quiz_nouns_click)
+        self.create_pack_button(lower_frame, "Nouns quiz",
+                                self.quiz_nouns_click, 0, 1)
 
-        quiz_verbs_button = self.create_pack_button(lower_frame,
-            "Verbs quiz", self.quiz_verbs_click)
+        self.create_pack_button(lower_frame, "Verbs quiz",
+                                self.quiz_verbs_click, 0, 1)
+        '''
+        self.create_grid_button(self, "View word",
+                                self.extract_entry_click, 0, 0)
+
+        self.create_grid_button(self, "Add word", self.add_word_click, 0, 1)
+
+        self.create_grid_button(self, "Delete word",
+                                self.delete_entry_click, 0, 2)
+
+        self.create_grid_button(self, "View words with meaning",
+                                self.extract_with_meaning_click, 0, 3)
+
+        self.create_grid_button(self, "Edit entry",
+                                self.edit_entry_click, 0, 4)
+
+        self.create_grid_button(self, "Meaning quiz",
+                                self.quiz_meaning_click, 1, 1)
+
+        self.create_grid_button(self, "Nouns quiz",
+                                self.quiz_nouns_click, 1, 2)
+
+        self.create_grid_button(self, "Verbs quiz",
+                                self.quiz_verbs_click, 1, 3)
 
     def extract_entry_click(self):
         child = self.create_window(self, "Extract word", 400, 300)
