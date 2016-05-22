@@ -20,11 +20,83 @@ class DictionaryGUI(tk.Frame):
 
         return new_frame
 
-    def create_pack_button(self, master, text, command):
-        new_button = tk.Button(master, text=text, command=command)
-        new_button.pack(side=tk.LEFT, padx=10, pady=10)
+    def create_pack_button(self, master, text, command, width=0, center=0):
+        w = max(len(text), width)
+        new_button = tk.Button(master, text=text, command=command, width=w)
+
+        if center is 0:
+            new_button.pack(side=tk.LEFT, padx=10, pady=10)
+        else:
+            new_button.pack()
 
         return new_button
+
+    def create_grid_button(self, master, text, command, row, column,
+                           sticky=tk.W+tk.E+tk.S+tk.N):
+        new_button = tk.Button(master, text=text, command=command)
+        new_button.grid(row=row, column=column, sticky=sticky)
+
+        return new_button
+
+    def create_window(self, master, title, width, height):
+        child = tk.Toplevel(master)
+        child.wm_title(title)
+        child.geometry("{}x{}+500+500".format(width, height))
+        child.resizable(0, 0)
+
+        return child
+
+    def create_pack_label(self, master, text, padx=0, pady=0):
+        new_label = tk.Label(master, text=text)
+        new_label.pack(side="left", padx=padx, pady=pady)
+
+        return new_label
+
+    def create_pack_label_with_stringvar(self, master, padx=0, text=0):
+        label_content = tk.StringVar()
+        if text is not 0:
+            label_content.set(text)
+
+        new_label = tk.Label(master, textvariable=label_content,
+                             justify=tk.LEFT)
+        new_label.pack(side="left", padx=padx)
+
+        return (new_label, label_content)
+
+    def create_grid_label(self, master, text, row, column,
+                          sticky=tk.W+tk.E+tk.S+tk.N):
+        new_label = tk.Label(master, text=text)
+        new_label.grid(row=row, column=column, sticky=sticky)
+
+        return new_label
+
+    def create_pack_entry(self, master):
+        new_entry = tk.Entry(master)
+        new_entry.pack(side="left")
+
+        return new_entry
+
+    def create_pack_entry_with_stringvar(self, master):
+        entry_content = tk.StringVar()
+        new_entry = tk.Entry(master, textvariable=entry_content)
+        new_entry.pack(side="left")
+
+        return (new_entry, entry_content)
+
+    def create_grid_entry(self, master, row, column,
+                          sticky=tk.W+tk.E+tk.S+tk.N):
+        new_entry = tk.Entry(master)
+        new_entry.grid(row=row, column=column, sticky=sticky)
+
+        return new_entry
+
+    def create_grid_entry_with_stringvar(self, master, row, column,
+                                         sticky=tk.W+tk.E+tk.S+tk.N):
+        entry_content = tk.StringVar()
+        new_entry = tk.Entry(master, textvariable=entry_content)
+        new_entry.grid(row=row, column=column, sticky=sticky)
+
+        return (new_entry, entry_content)
 
     def initUI(self):
         self.parent.title("German Dictionary")
@@ -59,57 +131,43 @@ class DictionaryGUI(tk.Frame):
             "Verbs quiz", self.quiz_verbs_click)
 
     def extract_entry_click(self):
-        child = tk.Toplevel(self)
-        child.wm_title("View word")
-        child.geometry("400x300+500+500")
-        child.resizable(0, 0)
+        child = self.create_window(self, "Extract word", 400, 300)
 
-        frame = tk.Frame(child)
-        frame.pack(fill=tk.X)
+        query_frame = self.create_frame(child)
 
-        label = tk.Label(frame, text="Enter word to extract:")
-        label.pack(side="left", fill="both", padx=10)
+        query_label = self.create_pack_label(query_frame,
+                                             "Enter word to extract", 10)
 
-        self.text_box = tk.Entry(frame)
-        self.text_box.pack(side="left")
+        self.query_entry, self.query_content = self.\
+            create_pack_entry_with_stringvar(query_frame)
 
-        go_button = tk.Button(frame, text="Go", 
-            command=self.extract_entry_go_click)
-        go_button.pack(side="left")
+        go_button = self.create_pack_button(query_frame, "Go",
+                                            self.extract_entry_go_click)
 
-        text_frame = tk.Frame(child)
-        text_frame.pack(fill=tk.X)
+        text_frame = self.create_frame(child)
 
-        self.word_info = tk.StringVar()
-        word_info_text = tk.Label(text_frame, textvariable=self.word_info,
-            justify=tk.LEFT)
-        word_info_text.pack(side="left", padx=10)
-
-        child.mainloop()
+        extract_results, self.results_var = self.\
+            create_pack_label_with_stringvar(text_frame, 10)
 
     def extract_entry_go_click(self):
-        desired_word = self.text_box.get()
+        desired_word = self.query_entry.get()
 
         try:
             extracted_word = self.dictionary.extract_entry(desired_word)
         except DatabaseError:
-            self.word_info.set("")
-            mbox.showerror("Word not found", "The word {} was not found.".\
-                format(desired_word))
+            self.results_var.set("")
+            mbox.showerror("Word not found", "The word {} was not found.".
+                           format(desired_word))
+            self.query_content.set("")
         else:
-            self.word_info.set(extracted_word)
+            self.results_var.set(extracted_word)
 
     def add_word_click(self):
-        self.child = tk.Toplevel(self)
-        self.child.wm_title("Add word")
-        self.child.geometry("450x340+500+500")
-        self.child.resizable(0, 0)
+        self.child = self.create_window(self, "Add word", 450, 350)
 
-        label = tk.Label(self.child, text="Enter word to add:")
-        label.grid(row=0, column=0, padx=10)
+        self.create_grid_label(self.child, "Enter word to add: ", 0, 0)
 
-        self.new_word = tk.Entry(self.child)
-        self.new_word.grid(row=0, column=1)
+        self.new_word = self.create_grid_entry(self.child, 0, 1, tk.E+tk.W)
 
         self.word_type = tk.Listbox(self.child, height=3)
         self.word_type.grid(row=0, column=2)
@@ -117,44 +175,43 @@ class DictionaryGUI(tk.Frame):
         for item in ("Noun", "Verb", "Adjective"):
             self.word_type.insert(tk.END, item)
 
-        go_button = tk.Button(self.child, text="Go",
-            command=self.add_word_go_click)
-        go_button.grid(row=0, column=3)
-
-        self.child.mainloop()
+        self.create_grid_button(self.child, "Go", self.add_word_go_click, 0, 3,
+                                tk.E+tk.W)
 
     def add_word_go_click(self):
         desired_word = self.new_word.get()
 
         if(self.dictionary.exists_entry(desired_word)):
-            mbox.showerror("Word already added", 
-                "The word {} has been already added to the database.".\
-                format(desired_word))
+            mbox.showerror("Word already added",
+                           "The word {} has been already added {}".
+                           format(desired_word, 'to the database.'))
         else:
             index = self.word_type.curselection()[0]
             selected_word_type = self.word_type.get(index)
-            self.class_name = getattr(sys.modules[__name__], selected_word_type)
+            self.class_name = getattr(sys.modules[__name__],
+                                      selected_word_type)
             self.fields = self.class_name.fields()[1:]
 
-            row = 1
-            self.entry_fields = []
-            for field in self.fields[:-1]:
-                tk.Label(self.child, text=field).grid(row=row, column=0, 
-                                                      sticky=tk.W)
-                new_entry = tk.Entry(self.child)
-                self.entry_fields.append(new_entry)
-                new_entry.grid(row=row, column=1)
-                row = row + 1
+            self.create_add_word_field_widgets()
 
-            tk.Label(self.child, text="Examples").grid(row=row, column=0,
-                                                       sticky=tk.W+tk.N)
-            meaning = tk.Text(self.child, width=15, height=3)
-            meaning.grid(row=row, column=1)
-            self.entry_fields.append(meaning)
+    def create_add_word_field_widgets(self):
+        row = 1
+        self.entry_fields = []
+        for field in self.fields[:-1]:
+            self.create_grid_label(self.child, field, row, 0, tk.W)
+            new_entry = self.create_grid_entry(self.child, row, 1)
 
-            add_entry_button = tk.Button(self.child, text="Add entry",
-                width=15, command=self.add_entry_button_click)
-            add_entry_button.grid(row=row + 1, column=1)
+            self.entry_fields.append(new_entry)
+            row = row + 1
+
+        self.create_grid_label(self.child, "Examples", row, 0, tk.W+tk.N)
+
+        meaning = tk.Text(self.child, width=15, height=3)
+        meaning.grid(row=row, column=1)
+        self.entry_fields.append(meaning)
+
+        self.create_grid_button(self.child, "Add entry",
+                                self.add_entry_button_click, row + 1, 1)
 
     def add_entry_button_click(self):
         word_hash = {}
@@ -168,134 +225,107 @@ class DictionaryGUI(tk.Frame):
         new_entry = self.class_name(word_hash)
         self.dictionary.add_entry(new_entry)
 
-        mbox.showinfo("Word successfully added", 
-                "The word {} has been successfully added to the database.".\
-                format(word_hash["Entry"]))
+        mbox.showinfo("Word successfully added",
+                      "The word {} has been successfully added {}".
+                      format(word_hash["Entry"], 'to the database.'))
+        self.clear_add_entry_fields()
+
+    def clear_entry_fields(self):
+        for row in self.child.grid_slaves():
+            if int(row.grid_info()["row"]) > 0:
+                row.grid_forget()
 
     def delete_entry_click(self):
-        child = tk.Toplevel(self)
-        child.wm_title("Delete word")
-        child.geometry("450x200+500+500")
-        child.resizable(0, 0)
+        child = self.create_window(self, "Delete word", 450, 200)
 
-        frame = tk.Frame(child)
-        frame.pack(fill=tk.X)
+        frame = self.create_frame(child)
 
-        label = tk.Label(frame, text="Enter word to delete:", padx=10, 
-                         pady=10)
-        label.pack(side="left")
+        self.create_pack_label(frame, "Enter word to delete:", 10)
 
-        self.entry_content = tk.StringVar()
-        self.delete_entry_field = tk.Entry(frame, 
-            textvariable=self.entry_content)
-        self.delete_entry_field.pack(side="left")
+        self.delete_entry, self.entry_content = self.\
+            create_pack_entry_with_stringvar(frame)
 
-        go_button = tk.Button(frame, text="Go",
-                              command=self.delete_entry_go_click)
-        go_button.pack(side="left")
-
-        child.mainloop()
+        self.create_pack_button(frame, "Go", self.delete_entry_go_click)
 
     def delete_entry_go_click(self):
-        word_to_delete = self.delete_entry_field.get()
+        word_to_delete = self.delete_entry.get()
 
         if not self.dictionary.exists_entry(word_to_delete):
-            mbox.showerror("Word not found", 
-                "The word {} has not been found.".format(word_to_delete))
+            mbox.showerror("Word not found",
+                           "The word {} has not been found.".
+                           format(word_to_delete))
         else:
             self.dictionary.delete_entry(word_to_delete)
-            mbox.showinfo("Word successfully deleted", 
-                ("The word {} has been successfully deleted"
-                 " from the database.".\
-                format(word_to_delete)))
+            mbox.showinfo("Word successfully deleted",
+                          ("The word {} has been successfully deleted"
+                           " from the database.".format(word_to_delete)))
 
         self.entry_content.set("")
 
     def extract_with_meaning_click(self):
-        child = tk.Toplevel(self)
-        child.wm_title("Delete word")
-        child.geometry("450x340+500+500")
-        child.resizable(0, 0)
+        child = self.create_window(self, "Extract with meaning", 450, 340)
 
-        frame = tk.Frame(child)
-        frame.pack(fill=tk.X)
+        frame = self.create_frame(child)
 
-        label = tk.Label(frame, text="Enter meaning:", padx=10, 
-                         pady=10)
-        label.pack(side="left")
+        self.create_pack_label(frame, "Enter meaning:", 10, 10)
 
-        self.entry_content = tk.StringVar()
-        self.delete_entry_field = tk.Entry(frame, 
-            textvariable=self.entry_content)
-        self.delete_entry_field.pack(side="left")
+        self.meaning_entry, self.entry_content = self.\
+            create_pack_entry_with_stringvar(frame)
 
-        go_button = tk.Button(frame, text="Go",
-                              command=self.extract_with_meaning_go_click)
-        go_button.pack(side="left")
+        self.create_pack_button(frame, "Go",
+                                self.extract_with_meaning_go_click)
 
-        result_frame = tk.Frame(child)
-        result_frame.pack(fill=tk.X)
+        result_frame = self.create_frame(child)
 
-        self.result_content = tk.StringVar()
-        result_label = tk.Label(result_frame, justify="left",
-            textvariable=self.result_content)
-        result_label.pack(side="left")
-
-        child.mainloop()
+        result_label, self.result_content = self.\
+            create_pack_label_with_stringvar(result_frame)
 
     def extract_with_meaning_go_click(self):
-        meaning = self.delete_entry_field.get()
+        meaning = self.meaning_entry.get()
 
         found_words = self.dictionary.extract_entries_with_meaning(meaning)
         if len(found_words) == 0:
-            mbox.showerror("No words found", 
-                "No words containing the meaning '{}' have been found.".\
-                format(meaning))
+            mbox.showerror("No words found",
+                           ("No words containing the meaning '{}' "
+                            "have been found.".format(meaning)))
             self.result_content.set("")
         else:
             self.result_content.set("\n\n".join(map(str, found_words)))
 
     def edit_entry_click(self):
-        self.child = tk.Toplevel(self)
-        self.child.wm_title("Delete word")
-        self.child.geometry("450x340+500+500")
-        self.child.resizable(0, 0)
+        self.child = self.create_window(self, "Edit entry", 450, 340)
 
-        label = tk.Label(self.child, text="Enter word to edit:", padx=10,
-                         pady=10)
-        label.grid(row=0, column=0, sticky=tk.W)
+        self.create_grid_label(self.child, "Enter word to edit:", 0, 0, tk.W)
 
-        self.entry_content = tk.StringVar()
-        self.edit_word_field = tk.Entry(self.child, 
-            textvariable=self.entry_content)
-        self.edit_word_field.grid(row=0, column=1, sticky=tk.W)
+        self.edit_word_entry, self.entry_content = self.\
+            create_grid_entry_with_stringvar(self.child, 0, 1, tk.W)
 
-        go_button = tk.Button(self.child, text="Go",
-                              command=self.edit_entry_go_click)
-        go_button.grid(row=0, column=2, sticky=tk.W)
+        self.create_grid_button(self.child, "Go", self.edit_entry_go_click,
+                                0, 2, tk.W)
 
     def edit_entry_go_click(self):
-        desired_word = self.edit_word_field.get()
+        desired_word = self.edit_word_entry.get()
 
         if not self.dictionary.exists_entry(desired_word):
-            mbox.showerror("No word found", 
-                "The word '{}' has not been found.".format(desired_word))
-            self.result_content.set("")
+            mbox.showerror("No word found",
+                           "The word '{}' has not been found.".
+                           format(desired_word))
+            self.entry_content.set("")
         else:
             self.found_word = self.dictionary.extract_entry(desired_word)
             self.fields = self.found_word.__class__.fields()
 
-            tk.Label(self.child, text="Choose field to edit:", padx=10,
-                pady=10).grid(row=1, column=0, sticky=tk.N+tk.W)
+            self.create_grid_label(self.child, "Choose field to edit:", 1, 0,
+                                   tk.N+tk.W)
 
-            self.fields_to_edit = tk.Listbox(self.child, height=len(self.fields))
+            self.fields_to_edit = tk.Listbox(self.child,
+                                             height=len(self.fields))
             for field in self.fields:
                 self.fields_to_edit.insert(tk.END, field)
             self.fields_to_edit.grid(row=1, column=1, sticky=tk.W)
 
-            edit_button = tk.Button(self.child, text="Edit",
-                command=self.edit_entry_edit_click)
-            edit_button.grid(row=1, column=2, sticky=tk.W)
+            self.create_grid_button(self.child, "Edit",
+                                    self.edit_entry_edit_click, 1, 2, tk.W)
 
     def edit_entry_edit_click(self):
         index = self.fields_to_edit.curselection()[0]
@@ -303,28 +333,29 @@ class DictionaryGUI(tk.Frame):
 
         original_field_data = self.found_word.word_hash[self.selected_field]
 
-        tk.Label(self.child, text="Edit chosen field:", padx=10, pady=10).\
-            grid(row=1 + len(self.fields), column=0,sticky=tk.W)
+        self.create_grid_label(self.child, "Edit chosen field:",
+                               1 + len(self.fields), 0, tk.W)
 
-        self.new_field_data = tk.Entry(self.child, 
-            textvariable=original_field_data)
-        self.new_field_data.grid(row=1 + len(self.fields), column=1,
-            sticky=tk.W)
+        self.new_field_data = self.create_grid_entry(self.child,
+                                                     1 + len(self.fields),
+                                                     1, tk.W)
+        self.new_field_data.insert(tk.END, original_field_data)
 
-        save_changes_button = tk.Button(self.child, text="Save changes",
-            command=self.edit_entry_save_click)
-        save_changes_button.grid(row=1 + len(self.fields), column=2,
-            sticky=tk.W)
+        self.create_grid_button(self.child, "Save changes",
+                                self.edit_entry_save_click,
+                                1 + len(self.fields), 2, tk.W)
 
     def edit_entry_save_click(self):
         new_field_data_content = self.new_field_data.get()
 
         self.dictionary.edit_entry(self.found_word.word_hash['Entry'],
-            self.selected_field, new_field_data_content)
+                                   self.selected_field, new_field_data_content)
 
         mbox.showinfo("Entry successfully edited",
-            "Entry {} has been successfully edited".\
-            format(self.found_word.word_hash['Entry']))
+                      "Entry {} has been successfully edited".
+                      format(self.found_word.word_hash['Entry']))
+
+        self.clear_entry_fields()
 
     def quiz_meaning_click(self):
         self.quiz_template_click(['Nouns', 'Adjectives', 'Verbs'], ['Meaning'])
@@ -336,77 +367,58 @@ class DictionaryGUI(tk.Frame):
         self.quiz_template_click(['Verbs'], ['Forms'])
 
     def quiz_template_click(self, parts_of_speech, fields):
-        self.child = tk.Toplevel(self)
-        self.child.wm_title("Meaning quiz")
-        self.child.geometry("450x340+500+500")
-        self.child.resizable(0, 0)
+        self.child = self.create_window(self, "", 450, 340)
 
         self.parts_of_speech = parts_of_speech
         self.fields = fields
         self.started = False
 
-        top_frame = tk.Frame(self.child)
-        top_frame.pack(fill=tk.X)
+        top_frame = self.create_frame(self.child)
 
-        start_button = tk.Button(top_frame, text="Start", width=15,
-            command=self.start_button_click)
-        start_button.pack(anchor="center")
+        self.create_pack_button(top_frame, "Start", self.start_click, 15, 1)
+        self.create_pack_button(top_frame, "Finish", self.finish_click, 15, 1)
 
-        finish_button = tk.Button(top_frame, text="Finish",
-            command=self.finish_button_click, width=15)
-        finish_button.pack(side="top", anchor="center")
-
-    def start_button_click(self):
+    def start_click(self):
         if not self.started:
             self.started = True
-
             self.quiz = Quiz(self.database, self.parts_of_speech, self.fields)
+            self.score_frame = self.create_frame(self.child)
 
-            self.score_frame = tk.Frame(self.child)
-            self.score_frame.pack(fill=tk.X)
+            self.score_info, self.score = self.\
+                create_pack_label_with_stringvar(self.score_frame, 0,
+                    'Score: {}'.format(self.quiz.score))
 
-            self.score = tk.StringVar()
-            self.score.set('Score: {}'.format(self.quiz.score))
-            self.score_info = tk.Label(self.score_frame, textvariable=self.score)
-            self.score_info.pack(side="left")
+            self.word_frame = self.create_frame(self.child)
 
-            self.word_frame = tk.Frame(self.child)
-            self.word_frame.pack(fill=tk.X)
+            current_entry = self.quiz.current_word.word_hash['Entry']
+            self.word_label, self.current_word = self.\
+                create_pack_label_with_stringvar(self.word_frame, 0,
+                    'Current word: {}'.format(current_entry))
 
-            self.current_word = tk.StringVar()
-            self.current_word.set('Current word: {}'.\
-                format(self.quiz.current_word.word_hash['Entry']))
-            self.word_label = tk.Label(self.word_frame,
-                textvariable=self.current_word)
-            self.word_label.pack(side="left")
+            self.create_quiz_field_widgets()
 
-            self.field_entries = []
-            self.field_frames = []
-            for field in self.fields:
-                new_field_frame = tk.Frame(self.child)
-                new_field_frame.pack(fill=tk.X)
-                self.field_frames.append(new_field_frame)
+            self.go_frame = self.create_frame(self.child)
 
-                description = tk.Label(new_field_frame, text='{}: '.format(field))
-                description.pack(side="left")
+            self.create_pack_button(self.go_frame, 'Check',
+                                    self.check_click, 15, 1)
 
-                new_entry = tk.Entry(new_field_frame)
-                new_entry.pack(side="left")
+    def create_quiz_field_widgets(self):
+        self.field_entries = []
+        self.field_frames = []
 
-                self.field_entries.append(new_entry)
+        for field in self.fields:
+            new_field_frame = self.create_frame(self.child)
+            self.field_frames.append(new_field_frame)
 
-            self.go_frame = tk.Frame(self.child)
-            self.go_frame.pack(fill=tk.X)
+            self.create_pack_label(new_field_frame, '{}: '.format(field))
 
-            self.check_button = tk.Button(self.go_frame, text='Check', width=15,
-                command=self.check_button_click)
-            self.check_button.pack(anchor="center")
+            new_entry = self.create_pack_entry(new_field_frame)
+            self.field_entries.append(new_entry)
 
-    def finish_button_click(self):
-        mbox.showinfo("Quiz finished", "Quiz finished, your score is {}".\
-            format("%.2f" %  (self.quiz.score * 100)))
+    def finish_click(self):
+        mbox.showinfo("Quiz finished", "Quiz finished, your score is {}".
+                      format("%.2f" % (self.quiz.score * 100)))
         self.started = False
-
 
         self.score_frame.pack_forget()
         self.word_frame.pack_forget()
@@ -414,14 +426,12 @@ class DictionaryGUI(tk.Frame):
             field_frame.pack_forget()
         self.go_frame.pack_forget()
 
-    def check_button_click(self):
+    def check_click(self):
         suggestions = []
         for index, field in enumerate(self.fields):
             suggestions.append(self.field_entries[index].get())
 
-        print(suggestions)
         guess_results = self.quiz.guess(suggestions)
-        print(guess_results)
         answer_statement = self.quiz.answer_statements(guess_results)
 
         mbox.showinfo("", "{}".format(answer_statement))
@@ -432,9 +442,10 @@ class DictionaryGUI(tk.Frame):
             self.finish_button_click()
 
     def update_quiz_fields(self):
-        self.score.set('Score: {}%'.format("%.2f" %  (self.quiz.score * 100)))
-        self.current_word.set('Current word: {}'.\
-            format(self.quiz.current_word.word_hash['Entry']))
+        current_entry = self.quiz.current_word.word_hash['Entry']
+        self.score.set('Score: {}%'.format("%.2f" % (self.quiz.score * 100)))
+        self.current_word.set('Current word: {}'.format(current_entry))
+
         for field_entry in self.field_entries:
             field_entry.delete(0, 'end')
 
