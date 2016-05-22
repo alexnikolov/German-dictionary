@@ -14,40 +14,49 @@ class DictionaryGUI(tk.Frame):
         self.parent = parent
         self.initUI()
 
+    def create_frame(self, master):
+        new_frame = tk.Frame(master)
+        new_frame.pack(fill=tk.X)
+
+        return new_frame
+
+    def create_pack_button(self, master, text, command):
+        new_button = tk.Button(master, text=text, command=command)
+        new_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        return new_button
+
     def initUI(self):
         self.parent.title("German Dictionary")
         self.pack(fill=tk.BOTH, expand=True)
-        
-        upper_frame = tk.Frame(self)
-        upper_frame.pack(fill=tk.X)
 
-        extract_entry_button = tk.Button(upper_frame, text="View word",
-            command=self.extract_entry_click)
-        extract_entry_button.pack(side=tk.LEFT, padx=10, pady=10)
+        upper_frame = self.create_frame(self)
 
-        add_word_button = tk.Button(upper_frame, text="Add word",
-            command=self.add_word_click)
-        add_word_button.pack(side=tk.LEFT, padx=10, pady=10)
+        extract_entry_button = self.create_pack_button(upper_frame,
+            "View word", self.extract_entry_click)
 
-        delete_entry_button = tk.Button(upper_frame, text="Delete word",
-            command=self.delete_entry_click)
-        delete_entry_button.pack(side=tk.LEFT, padx=10, pady=10)
+        add_word_button = self.create_pack_button(upper_frame,
+            "Add word", self.add_word_click)
 
-        extract_with_meaning_button = tk.Button(upper_frame,
-            text="View words with meaning",
-            command=self.extract_with_meaning_click)
-        extract_with_meaning_button.pack(side=tk.LEFT, padx=10, pady=10)
+        delete_entry_button = self.create_pack_button(upper_frame,
+            "Delete word", self.delete_entry_click)
 
-        edit_entry_button = tk.Button(upper_frame, text="Edit entry",
-            command=self.edit_entry_click)
-        edit_entry_button.pack(side=tk.LEFT, padx=10, pady=10)
+        extract_with_meaning_button = self.create_pack_button(upper_frame,
+            "View words with meaning", self.extract_with_meaning_click)
 
-        lower_frame = tk.Frame(self)
-        lower_frame.pack(fill=tk.X)
+        edit_entry_button = self.create_pack_button(upper_frame,
+            "Edit entry", self.edit_entry_click)
 
-        quiz_meaning_button = tk.Button(lower_frame, text="Meaning quiz",
-            command=self.quiz_meaning_click)
-        quiz_meaning_button.pack(side=tk.LEFT, padx=10, pady=10)
+        lower_frame = self.create_frame(self)
+
+        quiz_meaning_button = self.create_pack_button(lower_frame,
+            "Meaning quiz", self.quiz_meaning_click)
+
+        quiz_nouns_button = self.create_pack_button(lower_frame,
+            "Nouns quiz", self.quiz_nouns_click)
+
+        quiz_verbs_button = self.create_pack_button(lower_frame,
+            "Verbs quiz", self.quiz_verbs_click)
 
     def extract_entry_click(self):
         child = tk.Toplevel(self)
@@ -318,13 +327,22 @@ class DictionaryGUI(tk.Frame):
             format(self.found_word.word_hash['Entry']))
 
     def quiz_meaning_click(self):
+        self.quiz_template_click(['Nouns', 'Adjectives', 'Verbs'], ['Meaning'])
+
+    def quiz_nouns_click(self):
+        self.quiz_template_click(['Nouns'], ['Gender', 'Plural'])
+
+    def quiz_verbs_click(self):
+        self.quiz_template_click(['Verbs'], ['Forms'])
+
+    def quiz_template_click(self, parts_of_speech, fields):
         self.child = tk.Toplevel(self)
         self.child.wm_title("Meaning quiz")
         self.child.geometry("450x340+500+500")
         self.child.resizable(0, 0)
 
-        self.parts_of_speech = ['Nouns', 'Adjectives', 'Verbs']
-        self.fields = ['Meaning']
+        self.parts_of_speech = parts_of_speech
+        self.fields = fields
         self.started = False
 
         top_frame = tk.Frame(self.child)
@@ -407,7 +425,11 @@ class DictionaryGUI(tk.Frame):
         answer_statement = self.quiz.answer_statements(guess_results)
 
         mbox.showinfo("", "{}".format(answer_statement))
-        self.update_quiz_fields()
+
+        if len(self.quiz.words_to_guess) > 0:
+            self.update_quiz_fields()
+        else:
+            self.finish_button_click()
 
     def update_quiz_fields(self):
         self.score.set('Score: {}%'.format("%.2f" %  (self.quiz.score * 100)))
@@ -416,16 +438,6 @@ class DictionaryGUI(tk.Frame):
         for field_entry in self.field_entries:
             field_entry.delete(0, 'end')
 
-    def centerWindow(self):
-        w = 800
-        h = 600
-
-        sw = self.parent.winfo_screenwidth()
-        sh = self.parent.winfo_screenheight()
-        
-        x = (sw - w) / 2
-        y = (sh - h) / 2
-        self.parent.geometry('%dx%d+%d+%d' % (w, h, x, y))
 
 def main():
     root = tk.Tk()
