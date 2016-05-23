@@ -1,4 +1,3 @@
-import sqlite3
 from db_handler import DatabaseHandler
 from noun import Noun
 from verb import Verb

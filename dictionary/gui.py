@@ -1,8 +1,14 @@
 import tkinter as tk
 import tkinter.messagebox as mbox
-from dictionary import *
+
+from dictionary import Dictionary
 from db_handler import DatabaseError
 from quiz import Quiz
+#from ./lib import db_handler
+#from ..lib import quiz
+#from dictionary import *
+#from db_handler import DatabaseError
+#from quiz import Quiz
 import sys
 
 
@@ -475,7 +481,7 @@ class DictionaryGUI(tk.Frame):
 
 def main():
     root = tk.Tk()
-    app = DictionaryGUI(root, 'words.db')
+    app = DictionaryGUI(root, './data/words.db')
     root.mainloop()
 
 

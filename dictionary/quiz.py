@@ -2,6 +2,7 @@ from db_handler import DatabaseHandler
 from word import Word
 from random import randint
 
+
 class Quiz:
     def __init__(self, database, parts_of_speech, fields_to_be_guessed):
         self.database = database

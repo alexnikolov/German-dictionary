@@ -1,9 +1,8 @@
-import word
-import sqlite3
-import db_handler
+from word import Word
+from db_handler import DatabaseHandler
 
 
-class Adjective(word.Word):
+class Adjective(Word):
     def __init__(self, db_hash):
         super(Adjective, self).__init__(db_hash)
 
