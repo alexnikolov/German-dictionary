@@ -4,11 +4,7 @@ import tkinter.messagebox as mbox
 from dictionary import Dictionary, Noun, Verb, Adjective
 from db_handler import DatabaseError
 from quiz import Quiz
-#from ./lib import db_handler
-#from ..lib import quiz
-#from dictionary import *
-#from db_handler import DatabaseError
-#from quiz import Quiz
+
 import sys
 
 

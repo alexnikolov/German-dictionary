@@ -4,6 +4,7 @@ import sqlite3
 class DatabaseError(Exception):
     pass
 
+
 class DatabaseHandler:
     @classmethod
     def dict_factory(cls, cursor, row):
@@ -20,12 +21,12 @@ class DatabaseHandler:
             c = con.cursor()
 
             c.execute(("INSERT INTO Nouns VALUES('{en}', '{gnd}', '{pl}',"
-                       "'{gnt}', '{m}', '{ex}')".\
+                       "'{gnt}', '{m}', '{ex}')".
                        format(en=noun.word_hash['Entry'],
                               gnd=noun.word_hash['Gender'],
                               pl=noun.word_hash['Plural'],
                               gnt=noun.word_hash['Genetive'],
-                              m=noun.word_hash['Meaning'], 
+                              m=noun.word_hash['Meaning'],
                               ex=noun.word_hash['Examples'])))
 
     @classmethod
@@ -36,9 +37,9 @@ class DatabaseHandler:
             c = con.cursor()
 
             c.execute(("INSERT INTO Verbs VALUES('{en}', '{cs}', '{prep}',"
-                       "'{sep}', '{frm}', '{tran}', '{m}', '{ex}')".\
+                       "'{sep}', '{frm}', '{tran}', '{m}', '{ex}')".
                        format(en=verb.word_hash['Entry'],
-                              cs=verb.word_hash['Case'], 
+                              cs=verb.word_hash['Case'],
                               prep=verb.word_hash['Preposition'],
                               sep=verb.word_hash['Separable'],
                               frm=verb.word_hash['Forms'],
@@ -54,7 +55,7 @@ class DatabaseHandler:
             c = con.cursor()
 
             c.execute(("INSERT INTO Adjective VALUES('{en}', '{cmp}',"
-                       "'{sup}', '{m}', '{ex}')".\
+                       "'{sup}', '{m}', '{ex}')".
                        format(en=adj.word_hash['Entry'],
                               cmp=adj.word_hash['Comparative'],
                               sup=adj.word_hash['Superlative'],
@@ -82,7 +83,7 @@ class DatabaseHandler:
         with con:
             c = con.cursor()
             return [table for table in ['Nouns', 'Verbs', 'Adjectives'] if
-                    len(c.execute("SELECT * FROM {tb} WHERE Entry = '{w}'".\
+                    len(c.execute("SELECT * FROM {tb} WHERE Entry = '{w}'".
                                   format(tb=table, w=word)).fetchall()) > 0]
 
     @classmethod
@@ -92,7 +93,7 @@ class DatabaseHandler:
         with con:
             con.row_factory = cls.dict_factory
             c = con.cursor()
-            c.execute("SELECT * FROM {tb} WHERE Entry = '{w}'".\
+            c.execute("SELECT * FROM {tb} WHERE Entry = '{w}'".
                       format(tb=table, w=word))
             found_entry = c.fetchall()[0]
 
@@ -111,7 +112,7 @@ class DatabaseHandler:
 
         with con:
             c = con.cursor()
-            c.execute("DELETE FROM {tb} WHERE Entry = '{w}'".\
+            c.execute("DELETE FROM {tb} WHERE Entry = '{w}'".
                       format(tb=tables_found[0], w=word))
 
     @classmethod
@@ -126,7 +127,7 @@ class DatabaseHandler:
             for table in ('Nouns', 'Verbs', 'Adjectives'):
                 c.execute(("SELECT * FROM {tb} WHERE Meaning LIKE '% {m} %'"
                            " OR Meaning LIKE '% {m},%' OR Meaning LIKE '%{m}'"
-                           " OR Meaning LIKE '%{m},%'".\
+                           " OR Meaning LIKE '%{m},%'".
                            format(tb=table, m=meaning)))
                 from_one_table = c.fetchall()
                 from_one_table = zip(from_one_table,
@@ -144,7 +145,7 @@ class DatabaseHandler:
 
         with con:
             c = con.cursor()
-            c.execute("UPDATE {tb} SET {f} = '{n_v}' WHERE Entry = '{en}'".\
+            c.execute("UPDATE {tb} SET {f} = '{n_v}' WHERE Entry = '{en}'".
                       format(tb=tables_found[0], f=field, n_v=new_value,
                              en=entry))
 
@@ -162,4 +163,3 @@ class DatabaseHandler:
                 extracted_words += c.fetchall()
 
             return extracted_words
-

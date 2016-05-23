@@ -14,8 +14,9 @@ class Quiz:
         self.words_to_guess = DatabaseHandler.\
             extract_parts_of_speech(parts_of_speech, self.database)
         self.words_to_guess = list(map(lambda x: Word(x), self.words_to_guess))
-        self.current_word = self.words_to_guess[randint(0, len(self.words_to_guess) - 1)]
-    
+        self.current_word = self.\
+            words_to_guess[randint(0, len(self.words_to_guess) - 1)]
+
     def guess(self, suggestions):
         suggestions_with_fields = zip(suggestions, self.fields_to_be_guessed)
         guess_results = []
@@ -25,7 +26,6 @@ class Quiz:
             guess_results.append(self.evaluate_answer(suggestion,
                                  self.split_answers_to_set(correct_answer)))
 
-
         self.update_score(guess_results)
         self.pick_new_current_word()
         return guess_results
@@ -33,8 +33,8 @@ class Quiz:
     def pick_new_current_word(self):
         self.words_to_guess.remove(self.current_word)
         if len(self.words_to_guess) > 0:
-            self.current_word = self.words_to_guess[randint(0, 
-                len(self.words_to_guess) - 1)]
+            self.current_word = self.\
+                words_to_guess[randint(0, len(self.words_to_guess) - 1)]
 
     def update_score(self, guess_results):
         field_scores = list(map(lambda result: result[0], guess_results))
@@ -56,7 +56,7 @@ class Quiz:
         elif len(suggested_answers & correct_answers) is 0:
             return [0, correct_answers]
         else:
-            return [len(correct_answers & suggested_answers) / \
+            return [len(correct_answers & suggested_answers) /
                     len(correct_answers), correct_answers]
 
     def answer_statements(self, guess_results):
@@ -73,5 +73,3 @@ class Quiz:
                     format(', '.join(field[1]))
 
         return answer_statement
-
-

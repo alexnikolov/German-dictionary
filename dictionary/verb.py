@@ -7,11 +7,11 @@ class Verb(Word):
         super(Verb, self).__init__(db_hash)
 
     def add_entry(self, database):
-        db_handler.DatabaseHandler.add_verb(self, database)
+        DatabaseHandler.add_verb(self, database)
 
     def __str__(self):
         return ("Entry: {}\nCase: {}\nPreposition: {}\nSeparable: {}\n"
-                "Forms: {}\nTransitive: {}\nMeaning: {}\nExamples: {}".\
+                "Forms: {}\nTransitive: {}\nMeaning: {}\nExamples: {}".
                 format(self.word_hash['Entry'], self.word_hash['Used_case'],
                        self.word_hash['Preposition'],
                        self.word_hash['Separable'],

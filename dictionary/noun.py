@@ -8,10 +8,10 @@ class Noun(Word):
 
     def add_entry(self, database):
         DatabaseHandler.add_noun(self, database)
-    
+
     def __str__(self):
         return ("Entry: {}\nGender: {}\nPlural: {}\nGenetive: {}\nMeaning: {}"
-                "\nExamples: {}".format(self.word_hash['Entry'], 
+                "\nExamples: {}".format(self.word_hash['Entry'],
                                         self.word_hash['Gender'],
                                         self.word_hash['Plural'],
                                         self.word_hash['Genetive'],
