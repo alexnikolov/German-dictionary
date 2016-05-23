@@ -7,7 +7,7 @@ class Noun(Word):
         super(Noun, self).__init__(db_hash)
 
     def add_entry(self, database):
-        db_handler.DatabaseHandler.add_noun(self, database)
+        DatabaseHandler.add_noun(self, database)
     
     def __str__(self):
         return ("Entry: {}\nGender: {}\nPlural: {}\nGenetive: {}\nMeaning: {}"

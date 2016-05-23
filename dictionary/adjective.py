@@ -7,7 +7,7 @@ class Adjective(Word):
         super(Adjective, self).__init__(db_hash)
 
     def add_entry(self, database):
-        db_handler.DatabaseHandler.add_verb(self, database)
+        DatabaseHandler.add_verb(self, database)
 
     def __str__(self):
         return ("Entry: {}\nComparative: {}\nSuperlative: {}\nMeaning: {}\n"

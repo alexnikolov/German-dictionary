@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.messagebox as mbox
 
-from dictionary import Dictionary
+from dictionary import Dictionary, Noun, Verb, Adjective
 from db_handler import DatabaseError
 from quiz import Quiz
 #from ./lib import db_handler
@@ -108,34 +108,7 @@ class DictionaryGUI(tk.Frame):
     def initUI(self):
         self.parent.title("German Dictionary")
         self.pack(fill=tk.BOTH, expand=True)
-        '''
-        upper_frame = self.create_frame(self)
 
-        self.create_pack_button(upper_frame, "View word",
-                                self.extract_entry_click)
-
-        self.create_pack_button(upper_frame, "Add word", self.add_word_click)
-
-        self.create_pack_button(upper_frame, "Delete word",
-                                self.delete_entry_click)
-
-        self.create_pack_button(upper_frame, "View words with meaning",
-                                self.extract_with_meaning_click)
-
-        self.create_pack_button(upper_frame, "Edit entry",
-                                self.edit_entry_click)
-
-        lower_frame = self.create_frame(self)
-
-        self.create_pack_button(lower_frame, "Meaning quiz",
-                                self.quiz_meaning_click, 0, 1)
-
-        self.create_pack_button(lower_frame, "Nouns quiz",
-                                self.quiz_nouns_click, 0, 1)
-
-        self.create_pack_button(lower_frame, "Verbs quiz",
-                                self.quiz_verbs_click, 0, 1)
-        '''
         self.create_grid_button(self, "View word",
                                 self.extract_entry_click, 0, 0)
 
@@ -216,9 +189,9 @@ class DictionaryGUI(tk.Frame):
                            format(desired_word, 'to the database.'))
         else:
             index = self.word_type.curselection()[0]
-            selected_word_type = self.word_type.get(index)
-            self.class_name = getattr(sys.modules[__name__],
-                                      selected_word_type)
+            part_of_speech = self.word_type.get(index)
+            self.class_name = getattr(sys.modules[__name__], part_of_speech)
+
             self.fields = self.class_name.fields()[1:]
 
             self.create_add_word_field_widgets()
@@ -257,7 +230,7 @@ class DictionaryGUI(tk.Frame):
         mbox.showinfo("Word successfully added",
                       "The word {} has been successfully added {}".
                       format(word_hash["Entry"], 'to the database.'))
-        self.clear_add_entry_fields()
+        self.clear_entry_fields()
 
     def clear_entry_fields(self):
         for row in self.child.grid_slaves():
