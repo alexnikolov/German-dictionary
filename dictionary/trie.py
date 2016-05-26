@@ -1,10 +1,12 @@
+from word import Word
 import math
 
 
 class TrieNode:
-    def __init__(self, value, final):
+    def __init__(self, value, final, word=None):
         self.value = value
         self.final = final
+        self.word = word
         self.children = {}
 
     def add_child(self, letter):
@@ -34,12 +36,12 @@ class Trie:
     def add_word(self, word):
         current_node = self.root
 
-        for letter in word:
+        for letter in word.word_hash['Entry']:
             current_node.add_child(letter)
-
             current_node = current_node.get_child(letter)
 
         current_node.make_final()
+        current_node.word = word
 
     def search_for_word(self, word):
         current_node = self.root
@@ -54,10 +56,9 @@ class Trie:
             else:
                 break
 
-        if (current_node.value is word[-1] and times_iterated is len(word) and
-               current_node.final):
-            return True
-        return False
+        if (current_node.value is word[-1] and times_iterated is len(word)
+                and current_node.final):
+            return current_node.word
 
     def delete_word(self, word):
         if self.search_for_word(word):
@@ -82,7 +83,7 @@ class Trie:
             else:
                 current_node.destroy_final()
 
-
+'''
 t = Trie()
 t.add_word("abc")
 t.add_word("xyz")
@@ -105,3 +106,4 @@ print(t.search_for_word(test_word))
 t.delete_word(test_word)
 print(t.search_for_word(test_word))
 print(t.search_for_word("dog"))
+'''

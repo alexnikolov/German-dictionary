@@ -10,7 +10,7 @@ import sys
 
 class DictionaryGUI(tk.Frame):
     def __init__(self, parent, database):
-        self.dictionary = Dictionary(database)
+        self.dictionary = Dictionary(database, True)
         self.database = database
         tk.Frame.__init__(self, parent, background="white")
         self.parent = parent
@@ -150,15 +150,15 @@ class DictionaryGUI(tk.Frame):
     def extract_entry_go_click(self):
         desired_word = self.query_entry.get()
 
-        try:
+        if self.dictionary.exists_entry(desired_word):
             extracted_word = self.dictionary.extract_entry(desired_word)
-        except DatabaseError:
+
+            self.results_var.set(extracted_word)
+        else:
             self.results_var.set("")
             mbox.showerror("Word not found", "The word {} was not found.".
                            format(desired_word))
             self.query_content.set("")
-        else:
-            self.results_var.set(extracted_word)
 
     def add_word_click(self):
         self.child = self.create_window(self, "Add word", 450, 350)
