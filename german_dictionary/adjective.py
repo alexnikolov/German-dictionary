@@ -1,5 +1,5 @@
-from word import Word
-from db_handler import DatabaseHandler
+from german_dictionary.word import Word
+from german_dictionary.db_handler import DatabaseHandler
 
 
 class Adjective(Word):
@@ -7,7 +7,7 @@ class Adjective(Word):
         super(Adjective, self).__init__(db_hash)
 
     def add_entry(self, database):
-        DatabaseHandler.add_verb(self, database)
+        DatabaseHandler.add_adjective(self, database)
 
     def __str__(self):
         return ("Entry: {}\nComparative: {}\nSuperlative: {}\nMeaning: {}\n"

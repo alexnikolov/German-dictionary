@@ -17,6 +17,9 @@ class DatabaseHandler:
     def add_noun(cls, noun, database):
         con = sqlite3.connect(database)
 
+        if cls.exists_entry(noun.word_hash['Entry'], database):
+            raise DatabaseError
+
         with con:
             c = con.cursor()
 
@@ -33,13 +36,16 @@ class DatabaseHandler:
     def add_verb(cls, verb, database):
         con = sqlite3.connect(database)
 
+        if cls.exists_entry(verb.word_hash['Entry'], database):
+            raise DatabaseError
+
         with con:
             c = con.cursor()
 
             c.execute(("INSERT INTO Verbs VALUES('{en}', '{cs}', '{prep}',"
                        "'{sep}', '{frm}', '{tran}', '{m}', '{ex}')".
                        format(en=verb.word_hash['Entry'],
-                              cs=verb.word_hash['Case'],
+                              cs=verb.word_hash['Used_case'],
                               prep=verb.word_hash['Preposition'],
                               sep=verb.word_hash['Separable'],
                               frm=verb.word_hash['Forms'],
@@ -51,16 +57,19 @@ class DatabaseHandler:
     def add_adjective(cls, adj, database):
         con = sqlite3.connect(database)
 
+        if cls.exists_entry(adj.word_hash['Entry'], database):
+            raise DatabaseError
+
         with con:
             c = con.cursor()
 
-            c.execute(("INSERT INTO Adjective VALUES('{en}', '{cmp}',"
+            c.execute(("INSERT INTO Adjectives VALUES('{en}', '{cmp}',"
                        "'{sup}', '{m}', '{ex}')".
                        format(en=adj.word_hash['Entry'],
                               cmp=adj.word_hash['Comparative'],
                               sup=adj.word_hash['Superlative'],
-                              m=verb.word_hash['Meaning'],
-                              ex=verb.word_hash['Examples'])))
+                              m=adj.word_hash['Meaning'],
+                              ex=adj.word_hash['Examples'])))
 
     @classmethod
     def extract_entry(cls, word, database):
@@ -143,11 +152,14 @@ class DatabaseHandler:
 
         con = sqlite3.connect(database)
 
-        with con:
-            c = con.cursor()
-            c.execute("UPDATE {tb} SET {f} = '{n_v}' WHERE Entry = '{en}'".
-                      format(tb=tables_found[0], f=field, n_v=new_value,
-                             en=entry))
+        try:
+            with con:
+                c = con.cursor()
+                c.execute("UPDATE {tb} SET {f} = '{n_v}' WHERE Entry = '{en}'".
+                          format(tb=tables_found[0], f=field, n_v=new_value,
+                                 en=entry))
+        except sqlite3.OperationalError:
+            raise DatabaseError
 
     @classmethod
     def extract_parts_of_speech(cls, parts_of_speech, database):
@@ -163,3 +175,37 @@ class DatabaseHandler:
                 extracted_words += c.fetchall()
 
             return extracted_words
+
+    @classmethod
+    def add_highscore(cls, high_score, database):
+        con = sqlite3.connect(database)
+
+        with con:
+            c = con.cursor()
+
+            c.execute(("INSERT INTO Highscores VALUES('{n}', '{dt}',"
+                       "'{sc}', '{q}', '{desc}')".
+                       format(n=high_score['Name'],
+                              dt=high_score['Date'],
+                              sc="{}%".format(str(high_score['Score'] * 100)),
+                              q=high_score['Questions'],
+                              desc=high_score['Description'])))
+
+    @classmethod
+    def extract_all_high_scores(cls, database):
+        con = sqlite3.connect(database)
+
+        with con:
+            c = con.cursor()
+
+            c.execute("SELECT * FROM Highscores")
+            return c.fetchall()
+
+    @classmethod
+    def clear_database(cls, database):
+        con = sqlite3.connect(database)
+
+        with con:
+          c = con.cursor()
+
+          c.execute("DELETE FROM Highscores")

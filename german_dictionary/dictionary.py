@@ -1,8 +1,8 @@
-from db_handler import DatabaseHandler
-from noun import Noun
-from verb import Verb
-from adjective import Adjective
-from trie import Trie
+from german_dictionary.db_handler import DatabaseHandler, DatabaseError
+from german_dictionary.noun import Noun
+from german_dictionary.verb import Verb
+from german_dictionary.adjective import Adjective
+from german_dictionary.trie import Trie
 import sys
 
 
@@ -15,7 +15,7 @@ class Dictionary:
 
     def initialize_trie(self):
         self.trie = Trie()
-        all_words = []
+        all_words = []  
 
         for part_of_speech in ['Nouns', 'Verbs', 'Adjectives']:
             all_words_from_one_pos = DatabaseHandler.\
@@ -30,30 +30,37 @@ class Dictionary:
             self.trie.add_word(word)
 
     def extract_entry(self, word):
-        if self.trie:
-            return self.trie.search_for_word(word)
-
-        entry_data = DatabaseHandler.extract_entry(word, self.database)
-        class_name = getattr(sys.modules[__name__], entry_data[1][:-1])
-        return class_name(entry_data[0])
+        try:
+            found_entry = self.trie.search_for_word(word)
+            if found_entry:
+                return found_entry
+            raise DatabaseError
+        except AttributeError:
+            entry_data = DatabaseHandler.extract_entry(word, self.database)
+            class_name = getattr(sys.modules[__name__], entry_data[1][:-1])
+            return class_name(entry_data[0])
 
     def add_entry(self, word):
         word.add_entry(self.database)
 
-        if self.trie:
+        try:
             self.trie.add_word(word)
+        except AttributeError:
+            return
 
     def exists_entry(self, word):
-        if self.trie:
+        try:
             return bool(self.trie.search_for_word(word))
-
-        return DatabaseHandler.exists_entry(word, self.database)
+        except AttributeError:
+            return DatabaseHandler.exists_entry(word, self.database)
 
     def delete_entry(self, word):
         DatabaseHandler.delete_entry(word, self.database)
 
-        if self.trie:
+        try:
             self.trie.delete_word(word)
+        except AttributeError:
+            return
 
     def extract_entries_with_meaning(self, meaning):
         found_entries_data = DatabaseHandler.\
@@ -69,3 +76,15 @@ class Dictionary:
 
     def edit_entry(self, entry, field, new_value):
         DatabaseHandler.edit_entry(entry, field, new_value, self.database)
+
+        try:
+            word_in_trie = self.trie.search_for_word(entry)
+
+            if field == 'Entry':
+                self.trie.delete_word(word_in_trie.word_hash['Entry'])
+                word_in_trie.word_hash['Entry'] = new_value
+                self.trie.add_word(word_in_trie)
+            else:
+                word_in_trie.word_hash[field] = new_value
+        except AttributeError:
+            return

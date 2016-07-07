@@ -1,4 +1,4 @@
-from word import Word
+from german_dictionary.word import Word
 import math
 
 
@@ -64,7 +64,7 @@ class Trie:
         if self.search_for_word(word):
             current_node = self.root
             last_split = self.root
-            last_split_letter = ' '
+            last_split_letter = word[0]
 
             for letter in word:
                 if len(current_node.children.keys()) > 1 or current_node.final:
@@ -77,33 +77,7 @@ class Trie:
                     current_node = next_node
 
             # current_node == last_node
-            print(current_node.children)
             if current_node.children == {}:
                 del last_split.children[last_split_letter]
             else:
                 current_node.destroy_final()
-
-'''
-t = Trie()
-t.add_word("abc")
-t.add_word("xyz")
-t.add_word("qwerty")
-print(t.search_for_word("abc"))
-print(t.search_for_word("sbz"))
-print(t.search_for_word("qwerti"))
-print(t.search_for_word("qwerty"))
-print(t.search_for_word("xyzz"))
-print('\n')
-
-t = Trie()
-t.add_word("dog")
-t.add_word("doge")
-t.add_word("dodge")
-
-test_word = "dog"
-
-print(t.search_for_word(test_word))
-t.delete_word(test_word)
-print(t.search_for_word(test_word))
-print(t.search_for_word("dog"))
-'''

@@ -1,5 +1,5 @@
-from db_handler import DatabaseHandler
-from word import Word
+from german_dictionary.db_handler import DatabaseHandler
+from german_dictionary.word import Word
 from random import randint
 
 
@@ -73,3 +73,12 @@ class Quiz:
                     format(', '.join(field[1]))
 
         return answer_statement
+
+    def hint(self, field):
+        if field == 'Meaning':
+            meaning = self.current_word.word_hash['Meaning']
+
+            if len(self.split_answers_to_set(meaning)) > 1:
+                return "Hint: One meaning starts with '{}'".format(meaning[0])
+            return "Hint: It starts with '{}'".format(meaning[0])
+        return 'Hints are not available for this quiz.'

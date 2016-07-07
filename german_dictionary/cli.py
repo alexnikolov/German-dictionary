@@ -1,14 +1,16 @@
-from dictionary import Dictionary, Noun, Verb, Adjective
-from db_handler import DatabaseError
-from quiz import Quiz
+from german_dictionary.dictionary import Dictionary, Noun, Verb, Adjective
+from german_dictionary.db_handler import DatabaseError
+from german_dictionary.quiz import Quiz
+from german_dictionary.highscore import HighScore
 import re
 import sys
 
 
 class DictionaryCLI:
-    def __init__(self, database):
+    def __init__(self, database, hs_database):
         self.database = database
         self.dictionary = Dictionary(database)
+        self.hs_database = hs_database
 
     def mainloop(self):
         while True:
@@ -27,6 +29,7 @@ class DictionaryCLI:
         self.check_meaning_match(user_input)
 
         self.check_quiz_match(user_input)
+        self.check_view_hs_match(user_input)
 
         help_match = re.search('\s*help\s*', user_input)
         if help_match:
@@ -38,7 +41,10 @@ class DictionaryCLI:
         print("'delete *word*' -> deletes words from the dictionary")
         print("'edit *word*' -> edits words from the dictionary")
         print("'cm *word*' -> extracts words with a common meaning (cm)")
-        print("'quiz m' -> starts the interactive ")
+        print("'quiz m' -> starts the interactive meanings quiz for all words")
+        print("'quiz nouns' -> starts the interactive nouns quiz")
+        print("'quiz verbs' -> starts the interactive verbs quiz")
+        print("'hs' -> views all recorded high scores")
 
     def check_view_match(self, user_input):
         view_match = re.search('\s*view\s+([a-zA-Z]+)\s*', user_input)
@@ -157,9 +163,12 @@ class DictionaryCLI:
             for field in fields:
                 current_guess = input('{}: '.format(field))
 
+                while current_guess == 'h':
+                    print(quiz.hint(field), '\n')
+                    current_guess = input('{}: '.format(field))
+
                 if current_guess == 'q':
-                    print('Final score: {}%'.
-                          format("%.2f" % (quiz.score * 100)))
+                    self.initiate_quiz_ending(quiz)
                     self.mainloop()
 
                 guesses.append(current_guess)
@@ -169,11 +178,29 @@ class DictionaryCLI:
 
             print('\n{}'.format(answer_statement))
 
-        print('Final score: {}%'.format("%.2f" % (quiz.score * 100)))
+        self.initiate_quiz_ending(quiz)
+
+    def initiate_quiz_ending(self, quiz):
+        print('Final score: {}%'.format("%.2f" % (quiz.score * 100)), '\n')
+
+        name = input('Enter name for high score: ')
+        high_score = HighScore(name, quiz)
+        high_score.add_high_score(self.hs_database)
+
+    def check_view_hs_match(self, user_input):
+        view_hs_match = re.search('\s*hs\s*', user_input)
+        if view_hs_match:
+            all_high_scores = HighScore.\
+                              extract_all_high_scores(self.hs_database)
+            all_high_scores.sort(reverse=True)
+
+            for high_score in all_high_scores:
+                print('; '.join(str(x) for x in high_score))
+
 
 
 def main():
-    app = DictionaryCLI('./data/words.db')
+    app = DictionaryCLI('./data/words.db', './data/highscores.db')
     app.mainloop()
 
 

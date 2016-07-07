@@ -1,17 +1,23 @@
 import tkinter as tk
 import tkinter.messagebox as mbox
 
-from dictionary import Dictionary, Noun, Verb, Adjective
-from db_handler import DatabaseError
-from quiz import Quiz
+from german_dictionary.dictionary import Dictionary
+from german_dictionary.noun import Noun
+from german_dictionary.verb import Verb
+from german_dictionary.adjective import Adjective
+from german_dictionary.db_handler import DatabaseError
+from german_dictionary.quiz import Quiz
+from german_dictionary.highscore import HighScore
 
 import sys
 
 
 class DictionaryGUI(tk.Frame):
-    def __init__(self, parent, database):
+    def __init__(self, parent, database, hs_database):
         self.dictionary = Dictionary(database, True)
         self.database = database
+        self.hs_database = hs_database
+
         tk.Frame.__init__(self, parent, background="white")
         self.parent = parent
         self.initUI()
@@ -118,6 +124,9 @@ class DictionaryGUI(tk.Frame):
 
         self.create_grid_button(self, "Edit entry",
                                 self.edit_entry_click, 0, 4)
+
+        self.create_grid_button(self, "View hish scores",
+                                self.view_high_scores_click, 1, 0)
 
         self.create_grid_button(self, "Meaning quiz",
                                 self.quiz_meaning_click, 1, 1)
@@ -400,6 +409,12 @@ class DictionaryGUI(tk.Frame):
             self.create_pack_button(self.go_frame, 'Check',
                                     self.check_click, 15, 1)
 
+            if 'Meaning' in self.quiz.fields_to_be_guessed:
+                self.hint_frame = self.create_frame(self.child)
+
+                self.create_pack_button(self.hint_frame, 'Hint',
+                                        self.check_hint, 15, 1)
+
     def create_quiz_field_widgets(self):
         self.field_entries = []
         self.field_frames = []
@@ -439,6 +454,9 @@ class DictionaryGUI(tk.Frame):
         else:
             self.finish_button_click()
 
+    def check_hint(self):
+        mbox.showinfo("", "{}".format(self.quiz.hint('Meaning')))
+
     def update_quiz_fields(self):
         current_entry = self.quiz.current_word.word_hash['Entry']
         self.score.set('Score: {}%'.format("%.2f" % (self.quiz.score * 100)))
@@ -447,10 +465,28 @@ class DictionaryGUI(tk.Frame):
         for field_entry in self.field_entries:
             field_entry.delete(0, 'end')
 
+    def view_high_scores_click(self):
+        child = self.create_window(self, "View high scores", 600, 480)
+
+        all_high_scores = HighScore.\
+                              extract_all_high_scores(self.hs_database)
+        all_high_scores.sort(reverse=True)
+
+        if len(all_high_scores) is 0:
+            mbox.showinfo("", "{}".format(self.quiz.hint('Meaning')))
+            child.destroy()
+        else:
+            for col, field in enumerate(HighScore.high_score_fields()):
+                self.create_grid_label(child, field, 0, col)
+
+            for row, high_score in enumerate(all_high_scores):
+                for column, field in enumerate(high_score):
+                    self.create_grid_label(child, field, row + 2, column)
+
 
 def main():
     root = tk.Tk()
-    app = DictionaryGUI(root, './data/words.db')
+    app = DictionaryGUI(root, './data/words.db', './data/highscores.db')
     root.mainloop()
 
 

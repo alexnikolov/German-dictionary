@@ -1,5 +1,5 @@
-from word import Word
-from db_handler import DatabaseHandler
+from german_dictionary.word import Word
+from german_dictionary.db_handler import DatabaseHandler
 
 
 class Noun(Word):

@@ -1,1 +1,4 @@
-dictionary/__pycache__/*
+german_dictionary/__pycache__/*
+build
+dist
+German_dictionary.egg-info
