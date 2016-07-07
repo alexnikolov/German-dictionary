@@ -2,3 +2,4 @@ german_dictionary/__pycache__/*
 build
 dist
 German_dictionary.egg-info
+tests/__pycache__/*
