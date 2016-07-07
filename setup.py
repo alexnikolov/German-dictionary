@@ -31,5 +31,7 @@ setup(
 
     keywords='german dictionary',
 
-    packages=['dictionary'],
+    packages= find_packages(),
+
+    test_suite = 'tests'
 )
