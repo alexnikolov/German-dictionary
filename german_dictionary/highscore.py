@@ -11,11 +11,10 @@ class HighScore:
 
     def to_dict(self):
         return {'Name': self.name, 'Date': self.date, 'Score': self.quiz.score,
-                'Questions': self.quiz.answers, 
-                'Description': "{} with {}".\
-                    format(', '.join(self.quiz.parts_of_speech), 
-                           ', '.join(self.quiz.fields_to_be_guessed))
-               }
+                'Questions': self.quiz.answers,
+                'Description': "{} with {}".
+                format(', '.join(self.quiz.parts_of_speech),
+                       ', '.join(self.quiz.fields_to_be_guessed))}
 
     def add_high_score(self, database):
         DatabaseHandler.add_highscore(self.to_dict(), database)

@@ -393,14 +393,16 @@ class DictionaryGUI(tk.Frame):
 
             self.score_info, self.score = self.\
                 create_pack_label_with_stringvar(self.score_frame, 0,
-                    'Score: {}'.format(self.quiz.score))
+                                                 'Score: {}'.
+                                                 format(self.quiz.score))
 
             self.word_frame = self.create_frame(self.child)
 
             current_entry = self.quiz.current_word.word_hash['Entry']
             self.word_label, self.current_word = self.\
                 create_pack_label_with_stringvar(self.word_frame, 0,
-                    'Current word: {}'.format(current_entry))
+                                                 'Current word: {}'.
+                                                 format(current_entry))
 
             self.create_quiz_field_widgets()
 
@@ -468,8 +470,7 @@ class DictionaryGUI(tk.Frame):
     def view_high_scores_click(self):
         child = self.create_window(self, "View high scores", 600, 480)
 
-        all_high_scores = HighScore.\
-                              extract_all_high_scores(self.hs_database)
+        all_high_scores = HighScore.extract_all_high_scores(self.hs_database)
         all_high_scores.sort(reverse=True)
 
         if len(all_high_scores) is 0:

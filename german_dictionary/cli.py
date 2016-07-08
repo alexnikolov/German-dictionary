@@ -7,9 +7,10 @@ import sys
 
 
 class DictionaryCLI:
-    def __init__(self, database, hs_database):
+    def __init__(self, database, hs_database, trie_on):
         self.database = database
-        self.dictionary = Dictionary(database)
+        self.trie_on = trie_on
+        self.dictionary = Dictionary(database, trie_on)
         self.hs_database = hs_database
 
     def mainloop(self):
@@ -30,6 +31,7 @@ class DictionaryCLI:
 
         self.check_quiz_match(user_input)
         self.check_view_hs_match(user_input)
+        self.check_trie_match(user_input)
 
         help_match = re.search('\s*help\s*', user_input)
         if help_match:
@@ -45,6 +47,8 @@ class DictionaryCLI:
         print("'quiz nouns' -> starts the interactive nouns quiz")
         print("'quiz verbs' -> starts the interactive verbs quiz")
         print("'hs' -> views all recorded high scores")
+        print("'trie on' -> turns on trie searching")
+        print("'trie off' -> turns off trie searching")
 
     def check_view_match(self, user_input):
         view_match = re.search('\s*view\s+([a-zA-Z]+)\s*', user_input)
@@ -114,7 +118,7 @@ class DictionaryCLI:
                 while True:
                     field = input(('Enter one of the following fields to edit:'
                                    '\n{}\n').format(', '.join(type(found_word).
-                                                         fields())))
+                                                    fields())))
 
                     if field in type(found_word).fields():
                         break
@@ -197,10 +201,31 @@ class DictionaryCLI:
             for high_score in all_high_scores:
                 print('; '.join(str(x) for x in high_score))
 
+    def check_trie_match(self, user_input):
+        check_trie_on = re.search('\s*trie\s+on\s*', user_input)
+        if check_trie_on:
+            if self.trie_on:
+                print('Trie searching is already on.\n')
+            else:
+                del self.dictionary
+                self.trie_on = True
+                self.dictionary = Dictionary(self.database, True)
+                print('Trie searching turned successfully on.\n')
+            return
+
+        check_trie_off = re.search('\s*trie\s+off\s*', user_input)
+        if check_trie_off:
+            if not self.trie_on:
+                print('Trie searching is already off.\n')
+            else:
+                del self.dictionary
+                self.trie_on = False
+                self.dictionary = Dictionary(self.database, False)
+                print('Trie searching turned successfully off.\n')
 
 
 def main():
-    app = DictionaryCLI('./data/words.db', './data/highscores.db')
+    app = DictionaryCLI('./data/words.db', './data/highscores.db', False)
     app.mainloop()
 
 

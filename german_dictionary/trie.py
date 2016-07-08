@@ -10,7 +10,7 @@ class TrieNode:
         self.children = {}
 
     def add_child(self, letter):
-        if not letter in self.children:
+        if letter not in self.children:
             new_node = TrieNode(letter, False)
             self.children[letter] = new_node
 
@@ -56,8 +56,8 @@ class Trie:
             else:
                 break
 
-        if (current_node.value is word[-1] and times_iterated is len(word)
-                and current_node.final):
+        if (current_node.value is word[-1] and times_iterated is len(word) and
+                current_node.final):
             return current_node.word
 
     def delete_word(self, word):

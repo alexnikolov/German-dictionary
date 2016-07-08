@@ -15,13 +15,13 @@ class Dictionary:
 
     def initialize_trie(self):
         self.trie = Trie()
-        all_words = []  
+        all_words = []
 
         for part_of_speech in ['Nouns', 'Verbs', 'Adjectives']:
             all_words_from_one_pos = DatabaseHandler.\
                 extract_parts_of_speech([part_of_speech], self.database)
 
-            class_name = getattr(sys.modules[__name__],part_of_speech[:-1])
+            class_name = getattr(sys.modules[__name__], part_of_speech[:-1])
 
             for word_hash in all_words_from_one_pos:
                 all_words.append(class_name(word_hash))

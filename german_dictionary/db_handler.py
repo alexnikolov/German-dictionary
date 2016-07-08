@@ -206,6 +206,6 @@ class DatabaseHandler:
         con = sqlite3.connect(database)
 
         with con:
-          c = con.cursor()
+            c = con.cursor()
 
-          c.execute("DELETE FROM Highscores")
+            c.execute("DELETE FROM Highscores")
