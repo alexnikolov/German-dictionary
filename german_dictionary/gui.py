@@ -13,9 +13,10 @@ import sys
 
 
 class DictionaryGUI(tk.Frame):
-    def __init__(self, parent, database, hs_database):
-        self.dictionary = Dictionary(database, True)
+    def __init__(self, parent, database, hs_database, trie_on):
+        self.trie_on = trie_on
         self.database = database
+        self.dictionary = Dictionary(database, trie_on)
         self.hs_database = hs_database
 
         tk.Frame.__init__(self, parent, background="white")
@@ -136,6 +137,9 @@ class DictionaryGUI(tk.Frame):
 
         self.create_grid_button(self, "Verbs quiz",
                                 self.quiz_verbs_click, 1, 3)
+
+        self.create_grid_button(self, "Toggle trie search",
+                                self.toggle_trie_click, 1, 4)
 
     def extract_entry_click(self):
         child = self.create_window(self, "Extract word", 400, 300)
@@ -484,10 +488,20 @@ class DictionaryGUI(tk.Frame):
                 for column, field in enumerate(high_score):
                     self.create_grid_label(child, field, row + 2, column)
 
+    def toggle_trie_click(self):
+        self.trie_on = not self.trie_on
+        del self.dictionary
+        self.dictionary = Dictionary(self.database, self.trie_on)
+
+        if self.trie_on:
+            mbox.showinfo("", "Trie searching successfully turned on.")
+        else:
+            mbox.showinfo("", "Trie searching successfully turned off.")
+
 
 def main():
     root = tk.Tk()
-    app = DictionaryGUI(root, './data/words.db', './data/highscores.db')
+    app = DictionaryGUI(root, './data/words.db', './data/highscores.db', False)
     root.mainloop()
 
 
