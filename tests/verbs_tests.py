@@ -24,8 +24,9 @@ class VerbTest(unittest.TestCase):
                           'Forms': 'd', 'Examples': 'e',
                           'Transitive': 'e', 'Meaning': 'm'})
         self.assertEqual(str(test_verb),
-                         (("Entry: xyz\nCase: a\nPreposition: b\nSeparable: c\n"
-                           "Forms: d\nTransitive: e\nMeaning: m\nExamples: e")))
+                         (("Entry: xyz\nCase: a\nPreposition: b\nSeparable: c"
+                           "\nForms: d\nTransitive: e\nMeaning: m\n"
+                           "Examples: e")))
 
 if __name__ == '__main__':
     unittest.main()

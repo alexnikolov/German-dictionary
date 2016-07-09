@@ -14,7 +14,6 @@ import sys
 
 class DictionaryGUI(tk.Frame):
     def __init__(self, parent, database, hs_database, trie_on):
-        self.trie_on = trie_on
         self.database = database
         self.dictionary = Dictionary(database, trie_on)
         self.hs_database = hs_database
@@ -489,11 +488,9 @@ class DictionaryGUI(tk.Frame):
                     self.create_grid_label(child, field, row + 2, column)
 
     def toggle_trie_click(self):
-        self.trie_on = not self.trie_on
-        del self.dictionary
-        self.dictionary = Dictionary(self.database, self.trie_on)
+        self.dictionary.toggle_trie()
 
-        if self.trie_on:
+        if self.dictionary.trie_on:
             mbox.showinfo("", "Trie searching successfully turned on.")
         else:
             mbox.showinfo("", "Trie searching successfully turned off.")

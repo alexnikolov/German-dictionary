@@ -9,6 +9,7 @@ import sys
 class Dictionary:
     def __init__(self, database, trie=False):
         self.database = database
+        self.trie_on = trie
 
         if trie:
             self.initialize_trie()
@@ -88,3 +89,11 @@ class Dictionary:
                 word_in_trie.word_hash[field] = new_value
         except AttributeError:
             return
+
+    def toggle_trie(self):
+        self.trie_on = not self.trie_on
+
+        if self.trie_on:
+            self.trie = self.initialize_trie()
+        else:
+            self.trie = None

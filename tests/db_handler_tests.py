@@ -8,6 +8,7 @@ from german_dictionary.adjective import Adjective
 DATABASE = 'tests/example.db'
 HS_DB = 'tests/highscores.db'
 
+
 class DatabaseHandlerTest(unittest.TestCase):
     def test_exists_entry(self):
         handler = DatabaseHandler()
@@ -53,7 +54,8 @@ class DatabaseHandlerTest(unittest.TestCase):
         expected_result = {'Entry': 'Lampe', 'Gender': 'die',
                            'Plural': 'Lampen', 'Genetive': 'Lampe',
                            'Meaning': 'lamp', 'Examples': '-'}
-        self.assertEqual(handler.extract_entry('Lampe', DATABASE)[0], expected_result)
+        self.assertEqual(handler.extract_entry('Lampe', DATABASE)[0],
+                         expected_result)
 
     def test_nonexisting_extract_entry(self):
         handler = DatabaseHandler()

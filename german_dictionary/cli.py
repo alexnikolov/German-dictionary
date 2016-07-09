@@ -47,8 +47,7 @@ class DictionaryCLI:
         print("'quiz nouns' -> starts the interactive nouns quiz")
         print("'quiz verbs' -> starts the interactive verbs quiz")
         print("'hs' -> views all recorded high scores")
-        print("'trie on' -> turns on trie searching")
-        print("'trie off' -> turns off trie searching")
+        print("'toggle trie' -> toggles trie searching")
 
     def check_view_match(self, user_input):
         view_match = re.search('\s*view\s+([a-zA-Z]+)\s*', user_input)
@@ -202,25 +201,13 @@ class DictionaryCLI:
                 print('; '.join(str(x) for x in high_score))
 
     def check_trie_match(self, user_input):
-        check_trie_on = re.search('\s*trie\s+on\s*', user_input)
+        check_trie_on = re.search('\s*toggle\s+tree\s*', user_input)
         if check_trie_on:
-            if self.trie_on:
-                print('Trie searching is already on.\n')
-            else:
-                del self.dictionary
-                self.trie_on = True
-                self.dictionary = Dictionary(self.database, True)
-                print('Trie searching turned successfully on.\n')
-            return
+            self.dictionary.toggle_trie()
 
-        check_trie_off = re.search('\s*trie\s+off\s*', user_input)
-        if check_trie_off:
-            if not self.trie_on:
-                print('Trie searching is already off.\n')
+            if self.dictionary.tree_on:
+                print('Trie searching turned successfully on.\n')
             else:
-                del self.dictionary
-                self.trie_on = False
-                self.dictionary = Dictionary(self.database, False)
                 print('Trie searching turned successfully off.\n')
 
 

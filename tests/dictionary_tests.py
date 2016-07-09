@@ -9,6 +9,7 @@ from german_dictionary.adjective import Adjective
 
 DATABASE = 'tests/example.db'
 
+
 class DictionaryTest(unittest.TestCase):
     def test_extract_entry(self):
         dictionary = Dictionary(DATABASE)
@@ -95,7 +96,8 @@ class DictionaryTest(unittest.TestCase):
 
     def test_extract_two_entries_with_meaning(self):
         dictionary = Dictionary(DATABASE)
-        entries_with_meaning = dictionary.extract_entries_with_meaning('lovely')
+        entries_with_meaning = dictionary.\
+            extract_entries_with_meaning('lovely')
         self.assertEqual(len(entries_with_meaning), 2)
         first_entry = entries_with_meaning[0].word_hash['Entry']
         second_entry = entries_with_meaning[1].word_hash['Entry']
@@ -104,34 +106,34 @@ class DictionaryTest(unittest.TestCase):
     def test_edit_noun_field(self):
         dictionary = Dictionary(DATABASE)
         self.assertEqual(dictionary.extract_entry('Hund').word_hash['Gender'],
-                    'der')
+                         'der')
         dictionary.edit_entry('Hund', 'Gender', 'a')
         self.assertEqual(dictionary.extract_entry('Hund').word_hash['Gender'],
-                    'a')
+                         'a')
         dictionary.edit_entry('Hund', 'Gender', 'der')
         self.assertEqual(dictionary.extract_entry('Hund').word_hash['Gender'],
-                    'der')
+                         'der')
 
     def test_edit_verb_field(self):
         dictionary = Dictionary(DATABASE)
-        self.assertEqual(dictionary.extract_entry('singen').\
+        self.assertEqual(dictionary.extract_entry('singen').
                          word_hash['Used_case'], 'akk')
         dictionary.edit_entry('singen', 'Used_case', 'dat')
-        self.assertEqual(dictionary.extract_entry('singen').\
+        self.assertEqual(dictionary.extract_entry('singen').
                          word_hash['Used_case'], 'dat')
         dictionary.edit_entry('singen', 'Used_case', 'akk')
-        self.assertEqual(dictionary.extract_entry('singen').\
+        self.assertEqual(dictionary.extract_entry('singen').
                          word_hash['Used_case'], 'akk')
 
     def test_edit_adjective_field(self):
         dictionary = Dictionary(DATABASE)
-        self.assertEqual(dictionary.extract_entry('kalt').\
+        self.assertEqual(dictionary.extract_entry('kalt').
                          word_hash['Meaning'], 'cold')
         dictionary.edit_entry('kalt', 'Meaning', 'hot')
-        self.assertEqual(dictionary.extract_entry('kalt').\
+        self.assertEqual(dictionary.extract_entry('kalt').
                          word_hash['Meaning'], 'hot')
         dictionary.edit_entry('kalt', 'Meaning', 'cold')
-        self.assertEqual(dictionary.extract_entry('kalt').\
+        self.assertEqual(dictionary.extract_entry('kalt').
                          word_hash['Meaning'], 'cold')
 
     def test_edit_noun_with_non_existing_field(self):
@@ -172,13 +174,20 @@ class DictionaryTest(unittest.TestCase):
     def test_edit_word_field_with_trie_enabled(self):
         dictionary = Dictionary(DATABASE, True)
         self.assertEqual(dictionary.extract_entry('Hund').word_hash['Gender'],
-                    'der')
+                         'der')
         dictionary.edit_entry('Hund', 'Gender', 'a')
         self.assertEqual(dictionary.extract_entry('Hund').word_hash['Gender'],
-                    'a')
+                         'a')
         dictionary.edit_entry('Hund', 'Gender', 'der')
         self.assertEqual(dictionary.extract_entry('Hund').word_hash['Gender'],
-                    'der')
+                         'der')
+
+    def test_toggle_trie(self):
+        dictionary = Dictionary(DATABASE, True)
+        dictionary.toggle_trie()
+        self.assertEqual(dictionary.trie_on, False)
+        dictionary.toggle_trie()
+        self.assertEqual(dictionary.trie_on, True)
 
 
 if __name__ == '__main__':
